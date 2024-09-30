@@ -1,0 +1,8 @@
+prefix=/home/divij/Documents/quadopter/MultirotorSim_Vervoorst/devel
+
+Name: sim_multi
+Description: Description of sim_multi
+Version: 0.0.0
+Cflags: -I/home/divij/Documents/quadopter/MultirotorSim_Vervoorst/src/sim_multi/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs

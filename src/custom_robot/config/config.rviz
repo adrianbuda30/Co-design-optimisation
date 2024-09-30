@@ -1,0 +1,69 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Marker
+      Splitter Ratio: 0.5
+    Tree Height: 666
+  - Class: rviz/Selection
+    Name: Selection
+    Property Tree Widget:
+      Expanded:
+        - /Selection
+      Splitter Ratio: 0.5
+    Tree Height: 666
+  - Class: rviz/Tool Properties
+    Name: Tool Properties
+    Property Tree Widget:
+      Expanded:
+        - /Tool Properties
+      Splitter Ratio: 0.5
+    Tree Height: 666
+  - Class: rviz/Views
+    Name: Views
+    Property Tree Widget:
+      Expanded:
+        - /Current View
+      Splitter Ratio: 0.5
+    Tree Height: 666
+  - Class: rviz/Time
+    Name: Time
+    Tree Height: 666
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Class: rviz/Marker
+      Color: 255; 255; 255
+      Marker Topic: visualization_marker
+      Name: Robot Arms
+      Namespaces:
+        - {Name: robot_arms, Checked: true}
+      Queue Size: 100
+      Value: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base_link
+    Frame Rate: 30
+  Tools:
+    - Class: rviz/Interact
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+    - Class: rviz/SetGoal
+    - Class: rviz/PublishPoint
+    - Class: rviz/PointTool
+  Views:
+    - Class: rviz/Orbit
+      Name: Default View
+Window Geometry:
+  Height: 1000
+  Hide Left Dock: false
+  Hide Right Dock: false
+  Width: 1200
+  X: 50
+  Y: 50

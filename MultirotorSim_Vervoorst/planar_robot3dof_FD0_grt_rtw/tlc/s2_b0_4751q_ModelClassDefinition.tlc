@@ -1,0 +1,42 @@
+%implements s2_b0_4751q_ModelClassDefinition "C"
+%function ModelClassDefinition(block) Output
+%openfile tmp
+class planar_robot3dof_FD0 final 
+{
+  public:
+    %<SLibFillInPublicClassMembers()>
+        /* Root inports set method */
+void setExternalInputs(const ExtU_planar_robot3dof_FD0_T *pExtU_planar_robot3dof_FD0_T)
+    {
+        planar_robot3dof_FD0_U = *pExtU_planar_robot3dof_FD0_T;
+    }
+        /* Root outports get method */
+const ExtY_planar_robot3dof_FD0_T &getExternalOutputs() const
+    {
+        return planar_robot3dof_FD0_Y;
+    }
+        /* Initial conditions function */
+void initialize();
+        /* model step function */
+%<FcnStaticOnEmptyOutputUpdateMethod()>void step()%<AddConstToStepIfNeccessary("Outputs")>;
+        /* model terminate function */
+%<FcnStaticOnEmptyTermMethod()>void terminate()%<AddConstToTermIfNecessary("terminate")>;
+        /* Constructor */
+planar_robot3dof_FD0();
+        /* Destructor */
+~planar_robot3dof_FD0();
+  protected:
+    %<SLibFillInProtectedClassMembers()>
+  private:
+    /* External inputs */
+    ExtU_planar_robot3dof_FD0_T planar_robot3dof_FD0_U;
+    /* External outputs */
+    ExtY_planar_robot3dof_FD0_T planar_robot3dof_FD0_Y;
+    /* Block states */
+    DW_planar_robot3dof_FD0_T planar_robot3dof_FD0_DW;
+    %<SLibFillInPrivateClassMembers()>
+    %<SLibFillInLastPrivateClassMembers()>
+};
+%closefile tmp
+%return tmp
+%endfunction

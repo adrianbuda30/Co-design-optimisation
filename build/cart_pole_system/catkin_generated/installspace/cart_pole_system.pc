@@ -1,0 +1,8 @@
+prefix=/Users/adrianbuda/Downloads/master_thesis-aerofoil/install
+
+Name: cart_pole_system
+Description: Description of cart_pole_system
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

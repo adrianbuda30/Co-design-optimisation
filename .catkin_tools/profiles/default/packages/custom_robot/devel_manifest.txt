@@ -1,0 +1,6 @@
+custom_robot
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/cmake.lock /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/./cmake.lock
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/lib/custom_robot_wrapper.cpython-39-darwin.so /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/lib/custom_robot_wrapper.cpython-39-darwin.so
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/lib/pkgconfig/custom_robot.pc /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/lib/pkgconfig/custom_robot.pc
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/share/custom_robot/cmake/custom_robotConfig.cmake /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/share/custom_robot/cmake/custom_robotConfig.cmake
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/share/custom_robot/cmake/custom_robotConfig-version.cmake /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/share/custom_robot/cmake/custom_robotConfig-version.cmake

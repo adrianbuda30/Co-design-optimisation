@@ -1,0 +1,8 @@
+[ 16%] [32mBuilding CXX object CMakeFiles/Model_wrapper.dir/env/rtGetInf.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/Model_wrapper.dir/env/multirotor0.cpp.o[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/Model_wrapper.dir/env/Model_wrapper.cpp.o[0m
+[ 66%] [32mBuilding CXX object CMakeFiles/Model_wrapper.dir/env/rtGetNaN.cpp.o[0m
+[ 83%] [32mBuilding CXX object CMakeFiles/Model_wrapper.dir/env/rt_nonfinite.cpp.o[0m
+[100%] [32m[1mLinking CXX shared module /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/model_dynamics/lib/Model_wrapper.cpython-39-darwin.so[0m
+ld: warning: -pie being ignored. It is only used when linking a main executable
+[100%] Built target Model_wrapper

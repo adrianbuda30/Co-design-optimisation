@@ -1,0 +1,6 @@
+devel_space: /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel
+install: false
+install_space: /Users/adrianbuda/Downloads/master_thesis-aerofoil/install
+profile: default
+source_space: /Users/adrianbuda/Downloads/master_thesis-aerofoil/src
+workspace: /Users/adrianbuda/Downloads/master_thesis-aerofoil

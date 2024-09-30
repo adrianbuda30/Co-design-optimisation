@@ -1,0 +1,1 @@
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/share/aerofoil/cmake/aerofoilConfig-version.cmake
