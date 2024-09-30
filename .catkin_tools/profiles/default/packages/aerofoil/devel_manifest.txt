@@ -1,0 +1,6 @@
+aerofoil
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/cmake.lock /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/./cmake.lock
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/lib/aerofoil_wrapper.cpython-39-darwin.so /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/lib/aerofoil_wrapper.cpython-39-darwin.so
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/lib/pkgconfig/aerofoil.pc /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/lib/pkgconfig/aerofoil.pc
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/share/aerofoil/cmake/aerofoilConfig-version.cmake /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/share/aerofoil/cmake/aerofoilConfig-version.cmake
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/share/aerofoil/cmake/aerofoilConfig.cmake /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/share/aerofoil/cmake/aerofoilConfig.cmake

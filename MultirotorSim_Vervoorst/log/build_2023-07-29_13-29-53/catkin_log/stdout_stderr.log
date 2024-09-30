@@ -1,0 +1,104 @@
+[0/1] Re-running CMake...
+-- Using CATKIN_DEVEL_PREFIX: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel
+-- Using CMAKE_PREFIX_PATH: /usr/local/MATLAB/R2023a/sys/ros1/glnxa64/ros1
+-- This workspace overlays: /usr/local/MATLAB/R2023a/sys/ros1/glnxa64/ros1
+-- Found PythonInterp: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3
+-- Using Debian Python package layout
+-- Using empy: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+CMake Deprecation Warning at /usr/src/googletest/CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googlemock/CMakeLists.txt:45 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googletest/CMakeLists.txt:56 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Found PythonInterp: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3 (found version "3.8.10") 
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 3 packages in topological order:
+-- ~~  - multirotor0
+-- ~~  - sim_multi
+-- ~~  - true0
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin package: 'multirotor0'
+-- ==> add_subdirectory(multirotor0)
+-- +++ processing catkin package: 'sim_multi'
+-- ==> add_subdirectory(sim_multi)
+-- +++ processing catkin package: 'true0'
+-- ==> add_subdirectory(true0)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build
+ninja: no work to do.
+[1/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/multirotor0.cpp.o
+[2/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/multirotor0_data.cpp.o
+[3/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/rtGetInf.cpp.o
+[4/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/rtGetNaN.cpp.o
+[5/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/rt_nonfinite.cpp.o
+[6/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/rtmodel.cpp.o
+[7/9] Building CXX object multirotor0/CMakeFiles/multirotor0.dir/src/rt_cppclass_main.cpp.o
+[8/9] Linking CXX executable /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel/lib/multirotor0/multirotor0
+[8/9] Install the project...
+-- Install configuration: ""
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/_setup_util.py
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/env.sh
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.bash
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.bash
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.sh
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.sh
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.zsh
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.zsh
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/.rosinstall
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/pkgconfig/multirotor0.pc
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/multirotor0/cmake/multirotor0Config.cmake
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/multirotor0/cmake/multirotor0Config-version.cmake
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/multirotor0/package.xml
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/multirotor0/multirotor0
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/pkgconfig/sim_multi.pc
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/cmake/sim_multiConfig.cmake
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/cmake/sim_multiConfig-version.cmake
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/package.xml
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/sim_multi/Sim_Multi
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/pkgconfig/true0.pc
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/cmake/true0Config.cmake
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/cmake/true0Config-version.cmake
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/package.xml
+-- Up-to-date: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/true0/True0
+Base path: /home/divij/Desktop/complex/MultirotorSim_Vervoorst
+Source space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/src
+Build space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build
+Devel space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel
+Install space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install
+####
+#### Running command: "ninja build.ninja" in "/home/divij/Desktop/complex/MultirotorSim_Vervoorst/build"
+####
+####
+#### Running command: "ninja install -j8 -l8" in "/home/divij/Desktop/complex/MultirotorSim_Vervoorst/build"
+####

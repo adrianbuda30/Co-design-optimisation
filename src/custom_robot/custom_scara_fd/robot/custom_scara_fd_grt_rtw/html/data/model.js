@@ -1,0 +1,1 @@
+var modelInfo = {model:"custom_scara_fd"};var modelHierarchy=[{model:"custom_scara_fd",relativePath:"_internal.html",parent:"null"},];

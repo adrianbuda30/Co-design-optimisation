@@ -1,0 +1,7 @@
+[ 20%] [32mBuilding CXX object CMakeFiles/custom_robot_wrapper.dir/env/calcSysMatrices.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/custom_robot_wrapper.dir/env/mtimes.cpp.o[0m
+[ 60%] [32mBuilding CXX object CMakeFiles/custom_robot_wrapper.dir/env/custom_robot_wrapper.cpp.o[0m
+[ 80%] [32mBuilding CXX object CMakeFiles/custom_robot_wrapper.dir/env/mldivide.cpp.o[0m
+[100%] [32m[1mLinking CXX shared module /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/custom_robot/lib/custom_robot_wrapper.cpython-39-darwin.so[0m
+ld: warning: -pie being ignored. It is only used when linking a main executable
+[100%] Built target custom_robot_wrapper

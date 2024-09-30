@@ -1,0 +1,1 @@
+var reportPages = [["Summary","aerofoil_survey.html"],["Subsystem Report","aerofoil_subsystems.html"],["Code Interface Report","aerofoil_interface.html"]];

@@ -1,0 +1,1 @@
+/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/catkin_tools_prebuild/setup.sh

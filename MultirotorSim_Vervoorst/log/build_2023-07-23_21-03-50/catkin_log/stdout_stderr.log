@@ -1,0 +1,127 @@
+-- The C compiler identification is GNU 9.4.0
+-- The CXX compiler identification is GNU 9.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using CATKIN_DEVEL_PREFIX: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel
+-- Using CMAKE_PREFIX_PATH: /usr/local/MATLAB/R2023a/sys/ros1/glnxa64/ros1
+-- This workspace overlays: /usr/local/MATLAB/R2023a/sys/ros1/glnxa64/ros1
+-- Found PythonInterp: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3
+-- Using Debian Python package layout
+-- Found PY_em: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/lib/python3.8/site-packages/em.py  
+-- Using empy: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+CMake Deprecation Warning at /usr/src/googletest/CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googlemock/CMakeLists.txt:45 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googletest/CMakeLists.txt:56 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Found PythonInterp: /home/divij/.matlab/R2023a/ros1/glnxa64/venv/bin/python3 (found version "3.8.10") 
+-- Found Threads: TRUE  
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 2 packages in topological order:
+-- ~~  - sim_multi
+-- ~~  - true0
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin package: 'sim_multi'
+-- ==> add_subdirectory(sim_multi)
+-- +++ processing catkin package: 'true0'
+-- ==> add_subdirectory(true0)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build
+[1/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/rtGetInf.cpp.o
+[2/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/rtGetNaN.cpp.o
+[3/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/rt_nonfinite.cpp.o
+[4/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/Sim_Multi_data.cpp.o
+[5/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/rtmodel.cpp.o
+[6/19] Building CXX object true0/CMakeFiles/True0.dir/src/rtGetNaN.cpp.o
+[7/19] Building CXX object true0/CMakeFiles/True0.dir/src/rtGetInf.cpp.o
+[8/19] Building CXX object true0/CMakeFiles/True0.dir/src/True0_data.cpp.o
+[9/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/rt_cppclass_main.cpp.o
+[10/19] Building CXX object true0/CMakeFiles/True0.dir/src/rt_nonfinite.cpp.o
+[11/19] Building CXX object true0/CMakeFiles/True0.dir/src/rtmodel.cpp.o
+[12/19] Building CXX object true0/CMakeFiles/True0.dir/src/rt_cppclass_main.cpp.o
+[13/19] Building CXX object true0/CMakeFiles/True0.dir/src/True0.cpp.o
+[14/19] Building C object sim_multi/CMakeFiles/Sim_Multi.dir/src/rt_logging.c.o
+/home/divij/Desktop/complex/MultirotorSim_Vervoorst/src/sim_multi/src/rt_logging.c: In function ‘rt_FixupLogVar’:
+/home/divij/Desktop/complex/MultirotorSim_Vervoorst/src/sim_multi/src/rt_logging.c:1296:19: warning: ignoring return value of ‘fread’, declared with attribute warn_unused_result [-Wunused-result]
+ 1296 |             (void)fread(var->data.re, elSize, nEl, fptr);
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[15/19] Building C object true0/CMakeFiles/True0.dir/src/rt_logging.c.o
+/home/divij/Desktop/complex/MultirotorSim_Vervoorst/src/true0/src/rt_logging.c: In function ‘rt_FixupLogVar’:
+/home/divij/Desktop/complex/MultirotorSim_Vervoorst/src/true0/src/rt_logging.c:1296:19: warning: ignoring return value of ‘fread’, declared with attribute warn_unused_result [-Wunused-result]
+ 1296 |             (void)fread(var->data.re, elSize, nEl, fptr);
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[16/19] Linking CXX executable /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel/lib/true0/True0
+[17/19] Building CXX object sim_multi/CMakeFiles/Sim_Multi.dir/src/Sim_Multi.cpp.o
+[18/19] Linking CXX executable /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel/lib/sim_multi/Sim_Multi
+[18/19] Install the project...
+-- Install configuration: ""
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/_setup_util.py
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/env.sh
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.bash
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.bash
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.sh
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.sh
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/setup.zsh
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/local_setup.zsh
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/.rosinstall
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/pkgconfig/sim_multi.pc
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/cmake/sim_multiConfig.cmake
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/cmake/sim_multiConfig-version.cmake
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/sim_multi/package.xml
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/sim_multi/Sim_Multi
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/pkgconfig/true0.pc
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/cmake/true0Config.cmake
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/cmake/true0Config-version.cmake
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/share/true0/package.xml
+-- Installing: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install/lib/true0/True0
+Base path: /home/divij/Desktop/complex/MultirotorSim_Vervoorst
+Source space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/src
+Build space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/build
+Devel space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel
+Install space: /home/divij/Desktop/complex/MultirotorSim_Vervoorst/install
+Creating symlink "/home/divij/Desktop/complex/MultirotorSim_Vervoorst/src/CMakeLists.txt" pointing to "/usr/local/MATLAB/R2023a/sys/ros1/glnxa64/ros1/share/catkin/cmake/toplevel.cmake"
+####
+#### Running command: "cmake /home/divij/Desktop/complex/MultirotorSim_Vervoorst/src -DCATKIN_DEVEL_PREFIX=/home/divij/Desktop/complex/MultirotorSim_Vervoorst/devel -DCMAKE_INSTALL_PREFIX=/home/divij/Desktop/complex/MultirotorSim_Vervoorst/install -G Ninja" in "/home/divij/Desktop/complex/MultirotorSim_Vervoorst/build"
+####
+####
+#### Running command: "ninja install -j8 -l8" in "/home/divij/Desktop/complex/MultirotorSim_Vervoorst/build"
+####

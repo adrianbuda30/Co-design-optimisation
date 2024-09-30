@@ -1,0 +1,8 @@
+prefix=/Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/model_dynamics
+
+Name: model_dynamics
+Description: Description of model_dynamics
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,8 @@
+prefix=/Users/adrianbuda/Downloads/master_thesis-aerofoil/install
+
+Name: custom_robot
+Description: Description of custom_robot
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

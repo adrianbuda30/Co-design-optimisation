@@ -1,0 +1,76 @@
+import torch
+import torch.distributions as D
+import torch.nn.functional as F  # Import the functional module for softplus
+import numpy as np
+import torch.optim as optim
+
+
+class DesignDistribution_log:
+    def __init__(self, initial_mean, initial_std, lr_mean=0.001, lr_std=0.001):
+        self.mean = torch.tensor(initial_mean, dtype=torch.float32, requires_grad=True)
+        self.std = torch.tensor(initial_std, dtype=torch.float32, requires_grad=True)
+        
+        self.optimizer_mean = optim.Adam([self.mean], lr=lr_mean)
+        self.optimizer_std = optim.Adam([self.std], lr=lr_std)
+
+    def update_distribution(self, batch_rewards, batch_samples):
+
+        mean_rewards = torch.mean(torch.tensor(batch_rewards, dtype=torch.float32))
+
+        grad_mean = torch.zeros_like(self.mean)
+        grad_std = torch.zeros_like(self.std)
+
+        for i in range(len(batch_rewards)):
+            self.optimizer_mean.zero_grad()
+            self.optimizer_std.zero_grad()
+
+            sample = torch.tensor(batch_samples[i], dtype=torch.float32)
+            neg_log_likelihood = D.Normal(self.mean, F.softplus(self.std)).log_prob(sample).sum()
+            neg_log_likelihood.backward(retain_graph=True)
+
+            grad_mean += self.mean.grad
+            grad_std += self.std.grad
+
+        grad_mean /= len(batch_rewards)
+        grad_std /= len(batch_rewards)
+
+        self.mean.grad = grad_mean * mean_rewards
+        self.std.grad = grad_std * mean_rewards
+
+        self.optimizer_mean.step()
+        self.optimizer_std.step()
+
+    def sample_design(self):
+        return D.Normal(self.mean, F.softplus(self.std)).sample()
+    
+    def get_mean(self):
+        return self.mean.detach().numpy()
+    def get_std(self):
+        return F.softplus(self.std).detach().numpy()
+
+def reward_function(sampled_design):
+    reward = torch.norm((sampled_design - torch.tensor([1000.0, 2000.0, 3000.0, 4000.0], dtype=torch.float32)))
+    return reward.item()
+
+initial_mean = 2500 * np.random.rand(4).astype(np.float32)
+initial_std = np.ones(4, dtype=np.float32) * 1000  # Initialize std deviation as you prefer
+
+design_dist = DesignDistribution_log(initial_mean, initial_std)
+
+num_episodes = 100000
+batch_size = 1
+
+for i in range(0, num_episodes, batch_size):
+    batch_rewards = []
+    batch_samples = []
+
+    for _ in range(batch_size):
+        sampled_design = design_dist.sample_design().detach()
+        reward = reward_function(sampled_design)
+        
+        batch_samples.append(sampled_design.numpy())
+        batch_rewards.append(reward)
+
+    design_dist.update_distribution(batch_rewards, batch_samples)
+    
+    print(f"mean: {design_dist.get_mean()} reward: {np.mean(batch_rewards)}")

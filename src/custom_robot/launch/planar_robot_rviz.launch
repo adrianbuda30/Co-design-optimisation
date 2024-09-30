@@ -1,0 +1,7 @@
+<launch>
+    <!-- Start RViz with a default configuration -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find custom_robot)/config/config.rviz" required="true"/>
+    
+    <!-- Start the robot visualization node -->
+    <!-- <node name="eval_three_arm" pkg="custom_robot" type="eval_three_arm.py" output="screen" required="true"/> -->
+</launch>
