@@ -49,7 +49,7 @@ def main():
     batch_size_train = 128
     global_iteration = 0
     TRAIN = True
-    CALL_BACK_FUNC = f"constant_design"
+    CALL_BACK_FUNC = f"Schaff_callback"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
@@ -62,7 +62,7 @@ def main():
 
 
     while True:
-        # initialise the model PPO
+
         learning_rate_train = learning_rate_train
 
         onpolicy_kwargs = dict(activation_fn=torch.nn.Tanh,
@@ -91,7 +91,7 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"walker_constant_0.1_0.01"
+        model_name = f"walker_Schaff_2_parameters"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
@@ -110,7 +110,7 @@ def main():
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
                             device='cpu', verbose=1, tensorboard_log=log_dir)
 
-            # Load the weights from the old model
+
             new_model.set_parameters(old_model.get_parameters())
             new_model_eval.set_parameters(old_model.get_parameters())
 
@@ -121,7 +121,6 @@ def main():
                 policy_kwargs=onpolicy_kwargs, device='cpu', verbose=1, tensorboard_log=log_dir)
             print("New model created")
 
-# Train the new model
         print("Model training...")
         if CALL_BACK_FUNC is f"constant_design":
             param_changer = constant_design(model_name = model_name, model = new_model, n_steps_train = n_steps_train, n_envs_train = n_envs_train, verbose=1)
@@ -273,12 +272,11 @@ class constant_design(BaseCallback):
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
-        # Names of the elements to modify
+
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
 
-        # Set new size for torso (if needed)
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
             current_size = geom.get('size').split(' ')
@@ -291,7 +289,7 @@ class constant_design(BaseCallback):
             new_pos = current_pos[0:2] + [str(0.10000000000000001 + 2 * leg_length + torso_length + 2 * thigh_length)]
             body.set('pos', ' '.join(new_pos))
 
-        # Set new size and position for legs and other parts
+
         for i, name in enumerate(element_geom_names):
             geoms = root.findall(f".//geom[@name='{name}']")
             for geom in geoms:
@@ -306,13 +304,13 @@ class constant_design(BaseCallback):
                     elif 'foot' in name:
                         new_geom_pos = [-foot_length, 0, 0.10000000000000001]
 
-                    # Update the position
+
                     geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
-                # Calculate new position based on the lengths of the preceding body parts
+
                 if 'thigh' in name:
                     new_body_pos = [0, 0, - torso_length]
                 elif 'leg' in name:
@@ -320,7 +318,7 @@ class constant_design(BaseCallback):
                 elif 'foot' in name:
                     new_body_pos = [2 * foot_length, 0, - leg_length - 0.10000000000000001]
 
-                # Update the position
+
                 body.set('pos', ' '.join(map(str, new_body_pos)))
 
             joints = root.findall(f".//joint[@name='{name}_joint']")
@@ -333,7 +331,7 @@ class constant_design(BaseCallback):
                     elif 'foot' in name:
                         joint_pos = [-2 * foot_length, 0, 0.10000000000000001]
                     joint.set('pos', ' '.join(map(str, joint_pos)))
-        # Save the modified XML file
+
         tree.write(file_path)
 
 class random_design(BaseCallback):
@@ -356,7 +354,6 @@ class random_design(BaseCallback):
         self.model_name = model_name
         self.mat_file_name = model_name
         self.design_iteration = [0 for _ in range(self.n_envs_train)]
-        self.my_custom_condition = True  # Initialize your condition
         self.model.evaluate_current_policy = False
         self.mujoco_file_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
         self.limb_length_range = [0.1, 1.0]
@@ -405,7 +402,7 @@ class random_design(BaseCallback):
                     self.average_episode_length.append(self.episode_length[i])
                     self.average_reward.append(self.episode_rewards[i])
                     self.design_iteration[i] += 1
-                    # Reset episode reward accumulator
+
                     self.episode_rewards[i] = 0
                     self.episode_length[i] = 0
         return True
@@ -413,11 +410,11 @@ class random_design(BaseCallback):
     def _on_rollout_end(self) -> bool:
 
         self.model.save(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/random_design/{self.model_name}")
-        # Logging
+
 
         for i in range(self.n_envs_train):
             current_limb_length = self.training_env.env_method('get_limb_length', indices=[i])[0]
-            # Matlab logging
+
             self.mat_limb_length.append(current_limb_length)
             self.mat_reward.append(self.episode_rewards[i])
             self.mat_iteration.append(self.episode_length[i])
@@ -448,7 +445,7 @@ class random_design(BaseCallback):
         - file_path: Path to the XML file to modify.
         - limb_lengths: Sequence containing the new limb lengths, maintaining the sign.
         """
-        # Load the XML file
+
         tree = ET.parse(file_path)
         root = tree.getroot()
 
@@ -458,12 +455,11 @@ class random_design(BaseCallback):
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
-        # Names of the elements to modify
+
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
 
-        # Set new size for torso (if needed)
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
             current_size = geom.get('size').split(' ')
@@ -476,7 +472,6 @@ class random_design(BaseCallback):
             new_pos = current_pos[0:2] + [str(0.10000000000000001 + 2 * leg_length + torso_length + 2 * thigh_length)]
             body.set('pos', ' '.join(new_pos))
 
-        # Set new size and position for legs and other parts
         for i, name in enumerate(element_geom_names):
             geoms = root.findall(f".//geom[@name='{name}']")
             for geom in geoms:
@@ -490,8 +485,6 @@ class random_design(BaseCallback):
                         new_geom_pos = [0, 0, -thigh_length]
                     elif 'foot' in name:
                         new_geom_pos = [-foot_length, 0, 0.10000000000000001]
-
-                    # Update the position
                     geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
 
@@ -499,7 +492,7 @@ class random_design(BaseCallback):
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
-                # Calculate new position based on the lengths of the preceding body parts
+
                 if 'thigh' in name:
                     new_body_pos = [0, 0, - torso_length]
                 elif 'leg' in name:
@@ -507,7 +500,6 @@ class random_design(BaseCallback):
                 elif 'foot' in name:
                     new_body_pos = [2 * foot_length, 0, - leg_length - 0.10000000000000001]
 
-                # Update the position
                 body.set('pos', ' '.join(map(str, new_body_pos)))
 
             joints = root.findall(f".//joint[@name='{name}_joint']")
@@ -520,7 +512,7 @@ class random_design(BaseCallback):
                     elif 'foot' in name:
                         joint_pos = [-2 * foot_length, 0, 0.10000000000000001]
                     joint.set('pos', ' '.join(map(str, joint_pos)))
-        # Save the modified XML file
+
         tree.write(file_path)
 
 class Schaff_callback(BaseCallback):
@@ -550,8 +542,6 @@ class Schaff_callback(BaseCallback):
         self.save_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/random_design/{model_name}"
         #self.limb_length = np.ones(2) * 0.5
 
-        # Initialize the distributions
-
         self.distributions = []
         self.min_limb_length = [0.1, 0.01]
         self.max_limb_length = [2.0, 0.1]
@@ -565,7 +555,6 @@ class Schaff_callback(BaseCallback):
         self.steps_chop_distribution = n_steps_train * n_envs_train * 10000
         np.set_printoptions(precision=4)
 
-        # initialise matlab data
         self.current_limb_length = [[] for _ in range(self.n_envs_train)]
         self.mat_dist_mean = [[] for _ in range(self.n_envs_train)]
         self.mat_dist_std = [[] for _ in range(self.n_envs_train)]
@@ -583,7 +572,7 @@ class Schaff_callback(BaseCallback):
 
         self.checker = [False for _ in range(self.n_envs_train)]
 
-        z = 2  # Number of standard deviations to cover
+        z = 2
 
         for _ in range(self.num_distributions):
 
@@ -809,7 +798,6 @@ class Schaff_callback(BaseCallback):
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
 
-        #set new size for torso (if needed)
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
             current_size = geom.get('size').split(' ')
@@ -938,13 +926,13 @@ class Hebo_callback(BaseCallback):
 
     def _on_rollout_start(self) -> bool:
 
-        # reset the environments
+
         self.checker = [False for _ in range(self.n_envs_train)]
         self.average_reward = []
         self.average_length = []
         self.average_time = []
 
-        # Reset episode reward accumulator
+
         self.design_rewards_avg = [0 for _ in range(self.n_envs_train)]
         self.design_iteration = [1 for _ in range(self.n_envs_train)]
         self.episode_rewards = {}
@@ -1036,17 +1024,17 @@ class Hebo_callback(BaseCallback):
                 self.average_length.append(self.episode_length_avg[i])
                 self.average_reward.append(self.design_rewards_avg[i])
 
-                score_array = np.array(self.design_rewards_avg[i]).reshape(-1, 1)  # Convert to NumPy array
-                scores.append(-score_array)  # HEBO minimizes, so we need to negate the scores
+                score_array = np.array(self.design_rewards_avg[i]).reshape(-1, 1)
+                scores.append(-score_array)
 
-                # Logging
+
                 current_design_params = \
                 self.training_env.env_method('get_limb_length', indices=[i * self.batch_size_opt])[0]
                 dist_env_id = self.training_env.env_method('get_env_id', indices=[i * self.batch_size_opt])[0]
                 print(
                     f"Env ID: {dist_env_id}, mean reward: {self.design_rewards_avg[i]}, Mean episode length: {self.episode_length_avg[i]}, arm length: {current_design_params}")
 
-                # Matlab logging
+
                 self.mat_design_params.append(current_design_params)
                 self.mat_reward.append(self.design_rewards_avg[i])
                 self.mat_iteration.append(self.episode_length_avg[i])
@@ -1055,14 +1043,13 @@ class Hebo_callback(BaseCallback):
             self.logger.record("mean episode length", np.sum(self.average_length) / (self.n_envs_train // self.batch_size_opt))
 
 
-            # Update the design distribution
-            scores = np.array(scores)  # Make sure the outer list is also a NumPy array
+
+            scores = np.array(scores)
 
             self.opt.observe(self.rec, scores)
 
             self.state = 'propose_design'
 
-            # After all iterations, print the best input and output
             best_idx = self.opt.y.argmin()
             best_design = self.opt.X.iloc[best_idx]
             best_design_reward = self.opt.y[best_idx]
@@ -1073,7 +1060,7 @@ class Hebo_callback(BaseCallback):
 
             print(f"Design distribution update took {time.time() - start_time:.2f} seconds")
         else:
-            # Logging
+
             for i in range(self.n_envs_train):
                 current_design_params = self.training_env.env_method('get_limb_length', indices=[i])[0]
                 dist_env_id = self.training_env.env_method('get_env_id', indices=[i])[0]
@@ -1133,7 +1120,7 @@ class Hebo_callback(BaseCallback):
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
 
-        # set new size for torso (if needed)
+
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
             current_size = geom.get('size').split(' ')
@@ -1215,7 +1202,6 @@ class Hebo_Gauss_callback(BaseCallback):
         self.max_joint_pos = np.array([math.pi, math.pi], dtype=np.double)
         self.min_joint_pos = np.array([-math.pi, -math.pi], dtype=np.double)
 
-        # Initialize
 
         self.state = 'hebo_init' #random or gaussian or init_gaussian or hebo or init_hebo
 
@@ -1227,7 +1213,7 @@ class Hebo_Gauss_callback(BaseCallback):
         self.sampling_random_ctr = 0
         self.hebo_design_history = []
         self.hebo_reward_history = []
-        self.percentile_top_designs = 20 # 0 to 100
+        self.percentile_top_designs = 20
         self.batch_size_hebo = 1
         self.batch_size_gauss = 1
         self.batch_size_random = 1
@@ -1248,7 +1234,6 @@ class Hebo_Gauss_callback(BaseCallback):
         self.logger_reward = []
         self.logger_reward_prev = -1000
         self.logger_episode_length = []
-        #define hebo design space based on the number of components
 
         self.limb_length_range = [0.1, 1.0]
         self.foot_length_range = [0.1, 0.4]
@@ -1261,7 +1246,6 @@ class Hebo_Gauss_callback(BaseCallback):
         self.best_design_gauss = np.array([1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0])
         self.best_design_reward_gauss = -1000
         self.mat_best_reward_policy = -1000
-        # Range of possible components
         self.n_components_range = range(1, 8)
         self.sample_half_gauss = False
         self.limb_length = np.ones(14) * 0.5
@@ -1286,10 +1270,10 @@ class Hebo_Gauss_callback(BaseCallback):
 
             for i in range(1, len(self.design_space_lb) + 1):
                 space_config.append({
-                    'name': f'x{i}',  # This will create 'x1', 'x2', etc.
+                    'name': f'x{i}',
                     'type': 'num',
-                    'lb': self.design_space_lb[i-1],  # Assuming self.min_limb_length is defined
-                    'ub': self.design_space_ub[i-1]   # Assuming self.max_limb_length is defined
+                    'lb': self.design_space_lb[i-1],
+                    'ub': self.design_space_ub[i-1]
                 })
             space = DesignSpace().parse(space_config)
             self.opt = HEBO(space)
@@ -1760,14 +1744,15 @@ class evaluate_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.torso = 0.3379#random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.thigh = 0.7966 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.shin = 0.3142 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.foot = 0.2086 #random.uniform(self.foot_length_range[0], self.foot_length_range[1])
-            self.thickness_torso = 0.0322 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_thigh = 0.0326 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_shin = 0.0139 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_foot = 0.0106 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.torso = 0.2014 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.thigh = 0.4353 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.shin = 0.4741 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.foot = 0.2428 #random.uniform(self.foot_length_range[0], self.foot_length_range[1])
+
+            self.thickness_torso = 0.0289 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_thigh = 0.0150 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_shin = 0.0125 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_foot = 0.0122 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
             self.limb_length = np.array(
                 [self.torso, self.thigh, self.shin, self.foot, self.thigh, self.shin, self.foot, self.thickness_torso,
                  self.thickness_thigh, self.thickness_shin, self.thickness_foot, self.thickness_thigh,
