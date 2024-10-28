@@ -5,6 +5,7 @@ from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
 import imageio  # For saving video
 import os  # For handling file paths
+import mujoco
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -33,7 +34,7 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         render_mode='human',
         healthy_reward=1.0,
         terminate_when_unhealthy=True,
-        healthy_z_range=(0.2, 5.0),
+        healthy_z_range=(0.2, 10.0),
         healthy_angle_range=(-1.0, 1.0),
         reset_noise_scale=0.0,
         exclude_current_positions_from_observation=True,
@@ -107,12 +108,50 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
     def is_healthy(self):
         z, angle = self.data.qpos[1:3]
 
+        # Loop through all contacts and extract contact forces
+        global_force = self.data.qfrc_constraint[1:2]
+
+        force_array = self.data.sensordata
+        print(force_array)
+
+        buckling_force_thigh = 0
+        buckling_force_leg = 0
+        buckling_force_foot = 0
+
+        for i in range(self.data.ncon):
+            contact = self.data.contact[i]
+
+            # Create an array to hold the forces
+            contact_array = np.zeros(6, dtype=np.float64)
+
+            # Extract the contact force
+            mujoco.mj_contactForce(self.model, self.data, i, contact_array)
+            contact_force_thigh = np.sqrt(contact_array[0] ** 2 + contact_array[1] ** 2) * np.cos(self.data.qpos[6])
+
+            if contact_force_thigh > buckling_force_thigh:
+                buckling_force_thigh = contact_force_thigh
+
+            contact_force_leg = np.sqrt(contact_array[0] ** 2 + contact_array[1] ** 2) * np.cos(self.data.qpos[6])
+
+            if contact_force_leg > buckling_force_leg:
+                buckling_force_leg = contact_force_leg
+
+            contact_force_foot = np.sqrt(contact_array[0] ** 2 + contact_array[1] ** 2) * np.cos(self.data.qpos[6])
+
+            if contact_force_foot > buckling_force_foot:
+                buckling_force_foot = contact_force_foot
+
+
+
+
         min_z, max_z = self._healthy_z_range
         min_angle, max_angle = self._healthy_angle_range
+        max_force = self.buckling_force()
 
         healthy_z = min_z < z < max_z
         healthy_angle = min_angle < angle < max_angle
-        is_healthy = healthy_z and healthy_angle
+        healthy_buckling = buckling_force_thigh < max_force[0] and buckling_force_leg < max_force[1] and buckling_force_foot < max_force[2]
+        is_healthy = healthy_z and healthy_angle # and healthy_buckling
 
         return is_healthy
 
@@ -132,7 +171,7 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         return observation
 
     def step(self, action):
-        #self.render_mode = "human"
+        self.render_mode = "human"
         x_position_before = self.data.qpos[0]
         self.do_simulation(action, self.frame_skip)
         x_position_after = self.data.qpos[0]
@@ -178,6 +217,26 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         observation = self._get_obs()
         return observation
 
+    def buckling_force(self):
+        E = 2e9
+        L_thigh = self.limb_length[1]
+        L_leg = self.limb_length[2]
+        L_foot = self.limb_length[3]
+        d_thigh = self.limb_length[8]
+        d_leg = self.limb_length[9]
+        d_foot = self.limb_length[10]
+
+        K = 1.0
+
+        I_thigh = (np.pi * (d_thigh ** 4)) / 64
+        I_leg = (np.pi * (d_leg ** 4)) / 64
+        I_foot = (np.pi * (d_foot ** 4)) / 64
+
+        P_cr_thigh = (np.pi ** 2) * E * I_thigh / (K * L_thigh) ** 2
+        P_cr_leg = (np.pi ** 2) * E * I_leg / (K * L_leg) ** 2
+        P_cr_foot = (np.pi ** 2) * E * I_foot / (K * L_foot) ** 2
+
+        return P_cr_thigh, P_cr_leg, P_cr_foot
 
     def set_limb_length(self, limb_length):
         self.limb_length = limb_length
@@ -190,3 +249,4 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
 
     def get_env_id(self):
         return self.env_id
+

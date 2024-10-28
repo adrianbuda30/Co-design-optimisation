@@ -40,16 +40,16 @@ def main():
     REWARD = np.array([1.0, 0.0])
     learning_rate_train = 0.0001
     n_epochs_train = 10
-    LOAD_OLD_MODEL = False
+    LOAD_OLD_MODEL = True
     n_steps_train = 512 * 2
-    n_envs_train = 50
+    n_envs_train = 64
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
 
     batch_size_train = 128
     global_iteration = 0
-    TRAIN = True
-    CALL_BACK_FUNC = f"Schaff_callback"
+    TRAIN = False
+    CALL_BACK_FUNC = f"evaluate_design"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
@@ -91,12 +91,12 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"walker_Schaff_2_parameters"
+        model_name = f"walker_Schaff_8param_nobuckling_1distrib"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/walker_random_test_Schaff_3.zip", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/bestDesign_walker_Schaff_8param_nobuckling_1distrib", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
@@ -127,12 +127,13 @@ def main():
         elif CALL_BACK_FUNC is f"random_design":
             param_changer = random_design(model_name = model_name, model = new_model, n_steps_train = n_steps_train, n_envs_train = n_envs_train, verbose=1)
         elif CALL_BACK_FUNC is f"Hebo_callback":
-            param_changer = Hebo_callback(model_name=model_name, model=new_model, n_steps_train=n_steps_train,
-                                                n_envs_train=n_envs_train, verbose=1)
+            param_changer = Hebo_callback(model_name=model_name, model=new_model, n_steps_train=n_steps_train, n_envs_train=n_envs_train, verbose=1)
         elif CALL_BACK_FUNC is f"Hebo_Gauss_callback":
             param_changer = Hebo_Gauss_callback(model_name = model_name, model = new_model, n_steps_train = n_steps_train, n_envs_train = n_envs_train, verbose=1)
         elif CALL_BACK_FUNC is f"Schaff_callback":
             param_changer = Schaff_callback(model_name=model_name, model=new_model, n_steps_train = n_steps_train, n_envs_train=n_envs_train, num_distributions=1, verbose=1)
+        elif CALL_BACK_FUNC is f"Schaff_callback_GMM":
+            param_changer = Schaff_callback_GMM(model_name=model_name, model=new_model, n_steps_train=n_steps_train, n_envs_train=n_envs_train, num_distributions=64, verbose=1)
         elif CALL_BACK_FUNC is f"evaluate_design":
             param_changer = evaluate_design(model_name = model_name, model = new_model_eval, n_steps_train = n_steps_train, n_envs_train = n_envs_eval, verbose=1)
         else:
@@ -186,14 +187,14 @@ class constant_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.torso = 0.1
-            self.thigh = 0.1
-            self.shin = 0.1
-            self.foot = 0.1
-            self.thickness_torso = 0.01
-            self.thickness_thigh = 0.01
-            self.thickness_shin = 0.01
-            self.thickness_foot = 0.01
+            self.torso = 1.0
+            self.thigh = 1.0
+            self.shin = 1.0
+            self.foot = 0.4
+            self.thickness_torso = 0.05
+            self.thickness_thigh = 0.05
+            self.thickness_shin = 0.05
+            self.thickness_foot = 0.05
             self.limb_length = np.array(
                 [self.torso, self.thigh, self.shin, self.foot, self.thigh, self.shin, self.foot, self.thickness_torso,
                  self.thickness_thigh, self.thickness_shin, self.thickness_foot, self.thickness_thigh,
@@ -267,15 +268,62 @@ class constant_design(BaseCallback):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
+        original_lengths = {
+            'torso': 0.2,  # Default length of torso
+            'thigh': 0.225,  # Default length of thigh
+            'leg': 0.25,  # Default length of leg
+            'foot': 0.1,  # Default length of foot
+            'torso_thick': 0.05,  # Default length of torso
+            'thigh_thick': 0.05,  # Default length of thigh
+            'leg_thick': 0.04,  # Default length of leg
+            'foot_thick': 0.06  # Default length of foot
+        }
+
         torso_length = limb_lengths[0]
         thigh_length = limb_lengths[1]
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
+        torso_thickness = limb_lengths[7]
+        thigh_thickness = limb_lengths[8]
+        leg_thickness = limb_lengths[9]
+        foot_thickness = limb_lengths[10]
+
 
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
+
+        motor_names = ['thigh_joint', 'leg_joint', 'foot_joint', 'thigh_left_joint', 'leg_left_joint',
+                       'foot_left_joint']
+
+        for i, motor_name in enumerate(motor_names):
+            motors = root.findall(f".//motor[@joint='{motor_name}']")
+            for motor in motors:
+
+                if 'joint' in motor.attrib:
+                    if 'thigh' in motor_name:
+                        new_length = thigh_length
+                        new_thickness = thigh_thickness
+                        original_length = original_lengths['thigh']
+                        original_thickness = original_lengths['thigh_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'leg' in motor_name:
+                        new_length = leg_length
+                        new_thickness = leg_thickness
+                        original_length = original_lengths['leg']
+                        original_thickness = original_lengths['leg_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'foot' in motor_name:
+                        new_length = foot_length
+                        new_thickness = foot_thickness
+                        original_length = original_lengths['foot']
+                        original_thickness = original_lengths['foot_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                motor.set('gear', str(new_gear_value))
 
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
@@ -543,16 +591,17 @@ class Schaff_callback(BaseCallback):
         #self.limb_length = np.ones(2) * 0.5
 
         self.distributions = []
-        self.min_limb_length = [0.1, 0.01]
-        self.max_limb_length = [2.0, 0.1]
-        self.min_std = [0.0001, 0.0001]
-        self.max_std = [1.0, 0.05]
+        self.min_limb_length = [0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.01]
+        self.max_limb_length = [0.5, 1.0, 1.0, 0.4, 0.05, 0.05, 0.05, 0.05]
+        self.min_std = [0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001]
+        self.max_std = [0.25, 0.5, 0.5, 0.2, 0.025, 0.025, 0.025, 0.025]
         lr_std_schaff = 0.001
         lr_mean_schaff = 0.001
         lr_weight_schaff = 0.001
+        self.mat_best_reward_policy = -1000
+        self.mat_best_design = [0.3, 0.5, 0.5, 0.25, 0.03, 0.03, 0.03, 0.03]
         self.n_steps_train = n_steps_train
         self.steps_update_distribution = n_steps_train * n_envs_train * 500
-        self.steps_chop_distribution = n_steps_train * n_envs_train * 10000
         np.set_printoptions(precision=4)
 
         self.current_limb_length = [[] for _ in range(self.n_envs_train)]
@@ -576,10 +625,10 @@ class Schaff_callback(BaseCallback):
 
         for _ in range(self.num_distributions):
 
-            self.initial_mean = [1.0, 0.05]
+            self.initial_mean = [0.3, 0.5, 0.5, 0.25, 0.03, 0.03, 0.03, 0.03]
             #self.initial_mean = np.array([min_val + (max_val - min_val) * np.random.rand()
             #                              for min_val, max_val in zip(self.min_limb_length, self.max_limb_length)])
-            self.initial_std = [0.5, 0.025] # Initialize std deviation as you prefer
+            self.initial_std = [0.125, 0.25, 0.25, 0.1, 0.0125, 0.0125, 0.0125, 0.0125]  # Initialize std deviation as you prefer
             #self.initial_std = np.array([(max_Val - min_val) / (2 * z)
             #                             for min_val, max_val in
             #                             zip(self.min_limb_length, self.max_limb_length)])
@@ -624,7 +673,7 @@ class Schaff_callback(BaseCallback):
             dist_env_id = self.training_env.env_method('get_env_id', indices=[i])[0]
             new_design_params = self.distributions[(0)].sample_design().detach().numpy()
             new_design_params = np.clip(new_design_params, self.min_limb_length, self.max_limb_length)
-            new_design_params_update = np.array([new_design_params[0], new_design_params[0], new_design_params[0], new_design_params[0], new_design_params[0], new_design_params[0], new_design_params[0], new_design_params[1], new_design_params[1], new_design_params[1], new_design_params[1], new_design_params[1], new_design_params[1], new_design_params[1]])
+            new_design_params_update = np.array([new_design_params[0], new_design_params[1], new_design_params[2], new_design_params[3], new_design_params[1], new_design_params[2], new_design_params[3], new_design_params[4], new_design_params[5], new_design_params[6], new_design_params[7], new_design_params[5], new_design_params[6], new_design_params[7]])
             self.modify_xml_walker_full_geometry(f"{self.mujoco_file_folder}walker2d_{i}.xml", new_design_params_update)
             self.training_env.env_method('__init__', i ,indices=[i])
             self.training_env.env_method("set_limb_length", new_design_params_update, indices=[i])
@@ -664,7 +713,7 @@ class Schaff_callback(BaseCallback):
         for i in range(self.n_envs_train // self.Schaffs_batch_size):
             self.current_limb_length[i] = \
             self.training_env.env_method('get_limb_length', indices=[i * self.Schaffs_batch_size])[0]
-            self.current_limb_length[i] = np.array([self.current_limb_length[i][0], self.current_limb_length[i][7]])
+            self.current_limb_length[i] = np.array([self.current_limb_length[i][0], self.current_limb_length[i][1], self.current_limb_length[i][2], self.current_limb_length[i][3], self.current_limb_length[i][7], self.current_limb_length[i][8], self.current_limb_length[i][9], self.current_limb_length[i][10]])
             self.mat_dist_mean[i].append(self.distributions[(0)].get_mean())
             self.mat_dist_std[i].append(self.distributions[(0)].get_std())
             self.mat_dist_weight[i].append(self.distributions[(0)].get_weight())
@@ -678,6 +727,12 @@ class Schaff_callback(BaseCallback):
             self.logger_reward.append(self.design_rewards_avg[i])
             self.logger_episode_length.append(self.episode_length_avg[i])
 
+            if self.design_rewards_avg[i] > self.mat_best_reward_policy:
+                self.mat_best_reward_policy = self.design_rewards_avg[i]
+                self.mat_best_design = self.current_limb_length[i]
+                self.model.save(
+                    f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/bestDesign_{self.model_name}")
+
         if self.num_timesteps >= self.steps_update_distribution:
             self.distributions[(0)].update_distribution(
                 [self.logger_reward],
@@ -686,10 +741,11 @@ class Schaff_callback(BaseCallback):
         output_data = {
             "dist_mean": np.array(self.mat_dist_mean),
             "dist_std": np.array(self.mat_dist_std),
-            "dist_weight": np.array(self.mat_dist_weight),
             "limb_length": np.array(self.mat_limb_length),
             "reward": np.array(self.mat_reward),
-            "iteration": np.array(self.mat_episode_length)
+            "iteration": np.array(self.mat_episode_length),
+            "best_reward": self.mat_best_reward_policy,
+            "best_design": np.array(self.mat_best_design)
         }
 
         self.logger.record("mean reward", np.mean(self.logger_reward))
@@ -705,49 +761,6 @@ class Schaff_callback(BaseCallback):
 
         print("model amd matlab data saved")
 
-        # chop low performing distributions
-        if self.num_timesteps % self.steps_chop_distribution == 0:
-
-            print("...Starting to chop distributions...")
-            print("Updating design distribution...")
-
-            print(f"Mean rewards: {self.accumulated_rewards_chopping_metric}")
-            mean_rewards = [np.mean(self.accumulated_rewards_chopping_metric[i]) for i in
-                            range(len(self.accumulated_rewards_chopping_metric))]
-
-
-            sorted_indices = np.argsort(mean_rewards)[::-1]
-            top_indices = sorted_indices[:len(sorted_indices) // 2]
-            print(f"Top indices: {top_indices}, mean rewards: {mean_rewards}, sorted indices: {sorted_indices}")
-
-            print(f"Kept {len(top_indices)} top-performing distributions.")
-            print(
-                f"New distribution means: {[self.distributions[0].get_mean() for i in range(len(self.distributions))]}")
-            print(
-                f"New distribution stds: {[self.distributions[0].get_std() for i in range(len(self.distributions))]}")
-            print(
-                f"New distribution env IDs: {[self.training_env.env_method('get_env_id', indices=[i])[0] for i in range(self.n_envs_train)]}")
-            print(
-                f"New distribution mean rewards: {[np.mean(self.accumulated_rewards_chopping_metric[i]) for i in range(len(self.accumulated_rewards_chopping_metric))]}")
-
-
-            self.num_distributions = len(top_indices)
-            self.accumulated_rewards_chopping_metric = [[] for _ in range(self.num_distributions)]
-            self.distributions = self.distributions
-
-
-            self.mat_dist_mean = [self.mat_dist_mean[i] for i in top_indices]
-            self.mat_dist_std = [self.mat_dist_std[i] for i in top_indices]
-            self.mat_limb_length = [self.mat_limb_length[i] for i in top_indices]
-            self.mat_reward = [self.mat_reward[i] for i in top_indices]
-            self.mat_episode_length = [self.mat_episode_length[i] for i in top_indices]
-
-
-            for i in range(self.n_envs_train):
-                self.training_env.env_method('set_env_id', i,
-                                             indices=[i])
-
-            self.start_chopping = False
 
         self.design_iteration = [1 for _ in range(self.n_envs_train)]
         self.episode_rewards = {}
@@ -776,6 +789,373 @@ class Schaff_callback(BaseCallback):
 
         return True
 
+
+    def modify_xml_walker_full_geometry(self, file_path, limb_lengths):
+        """
+        Modify 'fromto' attributes for specified geoms and 'pos' attributes for specified bodies in an XML file based on new limb lengths while maintaining the original sign.
+
+        Args:
+        - file_path: Path to the XML file to modify.
+        - limb_lengths: Sequence containing the new limb lengths, maintaining the sign.
+        """
+
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+
+        torso_length = limb_lengths[0]
+        thigh_length = limb_lengths[1]
+        leg_length = limb_lengths[2]
+        foot_length = limb_lengths[3]
+
+        element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
+        element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
+                              'foot_left_geom']
+
+        torso_geom = root.findall(".//geom[@name='torso_geom']")
+        for geom in torso_geom:
+            current_size = geom.get('size').split(' ')
+            new_size = [str(limb_lengths[7])] + [str(limb_lengths[0])]
+            geom.set('size', ' '.join(new_size))
+
+        torso = root.findall(".//body[@name='torso']")
+        for body in torso:
+            current_pos = body.get('pos').split(' ')
+            new_pos = current_pos[0:2] + [str(0.10000000000000001 + 2 * leg_length + torso_length + 2 * thigh_length)]
+            body.set('pos', ' '.join(new_pos))
+
+
+        for i, name in enumerate(element_geom_names):
+            geoms = root.findall(f".//geom[@name='{name}']")
+            for geom in geoms:
+                index = i + 1
+                current_size = geom.get('size').split(' ')
+                new_size = [str(limb_lengths[index + 7])] + [str(limb_lengths[index])]
+                geom.set('size', ' '.join(new_size))
+
+                if 'pos' in geom.attrib:
+                    if 'thigh' in name:
+                        new_geom_pos = [0, 0, -thigh_length]
+                    elif 'foot' in name:
+                        new_geom_pos = [-foot_length, 0, 0.10000000000000001]
+
+                    geom.set('pos', ' '.join(map(str, new_geom_pos)))
+
+        for i, name in enumerate(element_body_names):
+            bodies = root.findall(f".//body[@name='{name}']")
+            for body in bodies:
+                if 'thigh' in name:
+                    new_body_pos = [0, 0, - torso_length]
+                elif 'leg' in name:
+                    new_body_pos = [0, 0, - 2 * thigh_length - leg_length]
+                elif 'foot' in name:
+                    new_body_pos = [2 * foot_length, 0, - leg_length - 0.10000000000000001]
+
+
+                body.set('pos', ' '.join(map(str, new_body_pos)))
+
+            joints = root.findall(f".//joint[@name='{name}_joint']")
+            for joint in joints:
+                if 'pos' in joint.attrib:
+                    if 'thigh' in name:
+                        joint_pos = [0, 0, 0]
+                    elif 'leg' in name:
+                        joint_pos = [0, 0, leg_length]
+                    elif 'foot' in name:
+                        joint_pos = [-2 * foot_length, 0, 0.10000000000000001]
+                    joint.set('pos', ' '.join(map(str, joint_pos)))
+
+        tree.write(file_path)
+
+
+class Schaff_callback_GMM(BaseCallback):
+    def __init__(self, model_name=f"matfile", model = None, n_steps_train=512 * 2, n_envs_train=50, num_distributions=50, verbose=0):
+
+        super(Schaff_callback_GMM, self).__init__(verbose)
+        self.num_distributions = num_distributions
+        self.n_envs_train = n_envs_train
+        self.model = model
+        self.Schaffs_batch_size = self.n_envs_train // self.num_distributions
+        self.rewards_iteration = {}
+        self.episode_length = {}
+        self.design_iteration = [1 for _ in range(self.n_envs_train)]
+        self.design_rewards_avg = [0 for _ in range(self.n_envs_train // self.Schaffs_batch_size)]
+        self.episode_length_avg = [0 for _ in range(self.n_envs_train // self.Schaffs_batch_size)]
+        self.avg_design_iteration = [0 for _ in range(self.n_envs_train // self.Schaffs_batch_size)]
+        self.episode_rewards = {}
+        self.episode_length = {}
+        self.logger_reward = []
+        self.logger_episode_length =[]
+        self.model_name = model_name
+        self.mujoco_file_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
+        self.mat_file_name = model_name
+        self.model.evaluate_current_policy = False
+        self.save_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/random_design/{model_name}"
+        #self.limb_length = np.ones(2) * 0.5
+
+        self.distributions = []
+        self.min_limb_length = [0.1, 0.1, 0.1, 0.1, 0.01, 0.01, 0.01, 0.01]
+        self.max_limb_length = [0.5, 1.0, 1.0, 0.4, 0.05, 0.05, 0.05, 0.05]
+        self.min_std = [0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001]
+        self.max_std = [0.25, 0.5, 0.5, 0.2, 0.025, 0.025, 0.025, 0.025]
+        lr_std_schaff = 0.001
+        lr_mean_schaff = 0.001
+        lr_weight_schaff = 0.001
+
+        self.mat_best_reward_policy = -1000
+        self.mat_best_design = [0.3, 0.5, 0.5, 0.25, 0.03, 0.03, 0.03, 0.03]
+
+        self.n_steps_train = n_steps_train
+        self.steps_update_distribution = n_steps_train * n_envs_train * 500
+        self.steps_chop_distribution = n_steps_train * n_envs_train * 1000
+        np.set_printoptions(precision=4)
+
+        self.current_limb_length = [[] for _ in range(self.num_distributions)]
+        self.mat_dist_mean = [[] for _ in range(self.num_distributions)]
+        self.mat_dist_std = [[] for _ in range(self.num_distributions)]
+        self.mat_limb_length = [[] for _ in range(self.num_distributions)]
+        self.mat_reward = [[] for _ in range(self.num_distributions)]
+        self.mat_episode_length = [[] for _ in range(self.num_distributions)]
+        self.mat_iter = 0
+        self.accumulated_rewards_chopping_metric = [[] for _ in range(self.num_distributions)]
+
+        self.start_sampling_distributions = False
+        self.iteration_matlab = 0
+        self.accumulate = False
+        self.counter_evaluations = 0
+        self.init_pos = []
+
+        self.checker = [False for _ in range(self.n_envs_train)]
+
+        z = 2
+
+        for _ in range(self.num_distributions):
+
+            self.initial_mean = np.array([min_val + (max_val - min_val) * np.random.rand()
+                                          for min_val, max_val in zip(self.min_limb_length, self.max_limb_length)])
+            self.initial_std = [0.125, 0.25, 0.25, 0.1, 0.0125, 0.0125, 0.0125, 0.0125] # Initialize std deviation as you prefer
+            #self.initial_std = np.array([(max_Val - min_val) / (2 * z)
+            #                             for min_val, max_val in
+            #                             zip(self.min_limb_length, self.max_limb_length)])
+
+            self.design_dist = DesignDistribution(self.initial_mean, self.initial_std,
+                                                  min_parameters=self.min_limb_length,
+                                                  max_parameters=self.max_limb_length, min_std=self.min_std, max_std=self.max_std, lr_mean=lr_mean_schaff,
+                                                  lr_std=lr_std_schaff, lr_weight = lr_weight_schaff)
+            self.distributions.append(self.design_dist)
+
+    def uniform_distribution_variance(self, a, b):
+        """
+        Calculate the variance and standard deviation of a uniform distribution
+        with bounds a and b.
+        """
+        variance = ((b - a) ** 2) / 12
+        std_dev = (variance ** 0.5)
+
+        return std_dev
+
+    def on_training_start(self, locals_: Dict[str, Any], globals_: Dict[str, Any]) -> bool:
+        print("Training started")
+        # set the environment id for each environment
+        for i in range(self.n_envs_train):
+            self.training_env.env_method('set_env_id', i, indices=[i])
+
+        # print(f"Env IDs: {[self.training_env.env_method('get_env_id', indices=[i])[0] for i in range(self.n_envs_train)]}")
+
+        return True
+
+    def _on_rollout_start(self) -> bool:
+
+        self.checker = [False for _ in range(self.n_envs_train)]
+
+        # chop low performing distributions
+        if self.num_timesteps > 0 and self.num_timesteps % self.steps_chop_distribution == 0 and self.num_distributions > 1:
+            self.accumulate = True
+            self.model.evaluate_current_policy = True
+
+            self.counter_evaluations = 0
+            self.accumulated_rewards_chopping_metric = [[] for _ in range(self.num_distributions)]
+
+        # reset the environments
+        for i in range(self.n_envs_train):
+            self.training_env.env_method('reset', indices=[i])
+
+        # set the sampled limb length for each batch
+        for i in range(self.n_envs_train):
+            dist_env_id = self.training_env.env_method('get_env_id', indices=[i])[0]
+            new_design_params = self.distributions[(dist_env_id // (self.n_envs_train // self.num_distributions))].sample_design().detach().numpy()
+            new_design_params = np.clip(new_design_params, self.min_limb_length, self.max_limb_length)
+            new_design_params_update = np.array([new_design_params[0], new_design_params[1], new_design_params[2], new_design_params[3], new_design_params[1], new_design_params[2], new_design_params[3], new_design_params[4], new_design_params[5], new_design_params[6], new_design_params[7], new_design_params[5], new_design_params[6], new_design_params[7]])
+            self.modify_xml_walker_full_geometry(f"{self.mujoco_file_folder}walker2d_{i}.xml", new_design_params_update)
+            self.training_env.env_method('__init__', i ,indices=[i])
+            self.training_env.env_method("set_limb_length", new_design_params_update, indices=[i])
+            self.training_env.env_method('reset', indices=[i])
+        return True
+
+
+
+    def _on_rollout_end(self) -> bool:
+
+        # calculate the mean reward for each unique design (limb lengths and thicknesses)
+
+        self.design_rewards_avg = [0 for _ in range(self.n_envs_train // self.Schaffs_batch_size)]
+        self.episode_length_avg = [0 for _ in range(self.n_envs_train // self.Schaffs_batch_size)]
+        for i in range(self.n_envs_train // self.Schaffs_batch_size):
+            # average batch reward
+            sum_reward = 0
+            total_episode_length = 0
+            total_design_iteration = 0
+            for j in range(self.Schaffs_batch_size):
+                sum_reward += self.episode_rewards[i * self.Schaffs_batch_size + j] / self.design_iteration[
+                    i * self.Schaffs_batch_size + j]
+                total_episode_length += self.episode_length[i * self.Schaffs_batch_size + j] / self.design_iteration[
+                    i * self.Schaffs_batch_size + j]
+                total_design_iteration += self.design_iteration[i * self.Schaffs_batch_size + j]
+
+            self.design_rewards_avg[i] = sum_reward / self.Schaffs_batch_size
+            self.episode_length_avg[i] = total_episode_length / self.Schaffs_batch_size
+            self.avg_design_iteration[i] = total_design_iteration / self.Schaffs_batch_size
+
+
+            for j in range(self.Schaffs_batch_size):
+
+                self.current_limb_length[i * self.Schaffs_batch_size + j] = \
+                self.training_env.env_method('get_limb_length', indices=[i * self.Schaffs_batch_size + j])[0]
+                self.current_limb_length[i * self.Schaffs_batch_size + j] = np.array(
+                    [self.current_limb_length[i * self.Schaffs_batch_size + j][0], self.current_limb_length[i * self.Schaffs_batch_size + j][1], self.current_limb_length[i * self.Schaffs_batch_size + j][2],
+                     self.current_limb_length[i * self.Schaffs_batch_size + j][3], self.current_limb_length[i * self.Schaffs_batch_size + j][7], self.current_limb_length[i * self.Schaffs_batch_size + j][8],
+                     self.current_limb_length[i * self.Schaffs_batch_size + j][9], self.current_limb_length[i * self.Schaffs_batch_size + j][10]])
+                print(
+                f"env: {i * self.Schaffs_batch_size:<1.2f}, limb length: {self.current_limb_length[i * self.Schaffs_batch_size + j]}, mean reward: {self.episode_rewards[i * self.Schaffs_batch_size + j]:<1.2f}, mean episode length: {self.episode_length[i * self.Schaffs_batch_size + j]:<1.2f}, design iteration: {self.design_iteration[i * self.Schaffs_batch_size + j]}, dist mean: {self.distributions[i].get_mean()}, dist std: {self.distributions[i].get_std()}")
+                self.mat_dist_mean[i * self.Schaffs_batch_size + j].append(
+                    self.distributions[i // (self.n_envs_train // self.num_distributions)].get_mean())
+                self.mat_dist_std[i * self.Schaffs_batch_size + j].append(
+                    self.distributions[i // (self.n_envs_train // self.num_distributions)].get_std())
+                self.mat_limb_length[i * self.Schaffs_batch_size + j].append(self.current_limb_length[i * self.Schaffs_batch_size + j])
+                self.mat_reward[i * self.Schaffs_batch_size + j].append(self.episode_rewards[i * self.Schaffs_batch_size + j])
+                self.mat_episode_length[i * self.Schaffs_batch_size + j].append(self.episode_length[i * self.Schaffs_batch_size + j])
+
+            self.logger_reward.append(self.design_rewards_avg[i])
+            self.logger_episode_length.append(self.episode_length_avg[i])
+
+            if self.design_rewards_avg[i] > self.mat_best_reward_policy:
+                self.mat_best_reward_policy = self.design_rewards_avg[i]
+                self.mat_best_design = self.current_limb_length[i * self.Schaffs_batch_size]
+                self.model.save(
+                    f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/bestDesign_{self.model_name}")
+
+
+            if self.num_timesteps >= self.steps_update_distribution and not self.accumulate:
+                self.distributions[i].update_distribution(
+                    [self.design_rewards_avg[i]],
+                  [self.current_limb_length[i]],
+                  self.num_distributions)
+
+        for i in range(self.num_distributions):
+            if self.accumulate:
+                self.accumulated_rewards_chopping_metric[i].append(self.design_rewards_avg[i])
+
+
+        output_data = {
+            "dist_mean": np.array(self.mat_dist_mean),
+            "dist_std": np.array(self.mat_dist_std),
+            "limb_length": np.array(self.mat_limb_length),
+            "reward": np.array(self.mat_reward),
+            "iteration": np.array(self.mat_episode_length),
+            "best_reward": self.mat_best_reward_policy,
+            "best_design": np.array(self.mat_best_design)
+        }
+
+        self.logger.record("mean reward", np.mean(self.logger_reward))
+        self.logger.record("mean episode length", np.mean(self.logger_episode_length))
+        self.logger_reward = []
+        self.logger_episode_length = []
+
+        print("saving matlab data...")
+        file_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/{self.mat_file_name}.mat"
+        savemat(file_path, output_data)
+        print("saving current model...")
+        self.model.save(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/{self.model_name}")
+
+        print("model amd matlab data saved")
+
+        if self.accumulate:
+            self.counter_evaluations += 1
+
+        print(self.counter_evaluations)
+
+        # chop low performing distributions
+        if self.counter_evaluations == 100 and self.num_distributions > 1:
+
+            print("...Starting to chop distributions...")
+            print("Updating design distribution...")
+
+            print(f"Rewards: {self.accumulated_rewards_chopping_metric}")
+            mean_rewards = [np.mean(self.accumulated_rewards_chopping_metric[i]) for i in
+                            range(len(self.accumulated_rewards_chopping_metric))]
+
+
+            sorted_indices = np.argsort(mean_rewards)[::-1]
+            top_indices = sorted_indices[:len(sorted_indices) // 2]
+
+            self.num_distributions = len(top_indices)
+            self.Schaffs_batch_size = self.n_envs_train // self.num_distributions
+            #self.n_envs_train = len(top_indices)
+            self.distributions = [self.distributions[i] for i in top_indices]
+
+            print(f"Top indices: {top_indices}, mean rewards over the phase: {mean_rewards}, sorted indices: {sorted_indices}")
+
+            print(f"Kept {len(top_indices)} top-performing distributions.")
+            print(
+                f"New distribution means: {[self.distributions[i].get_mean() for i in range(len(self.distributions))]}")
+            print(
+                f"New distribution stds: {[self.distributions[i].get_std() for i in range(len(self.distributions))]}")
+            print(
+                f"New distribution env IDs: {[self.training_env.env_method('get_env_id', indices=[i])[0] for i in range(self.num_distributions)]}")
+            print(
+                f"New distribution mean rewards: {[np.mean(self.accumulated_rewards_chopping_metric[i]) for i in range(len(self.accumulated_rewards_chopping_metric))]}")
+
+            self.accumulated_rewards_chopping_metric = [[] for _ in range(self.num_distributions)]
+            self.accumulate = False
+            self.counter_evaluations = 0
+            self.model.evaluate_current_policy = False
+
+           # self.mat_dist_mean = [self.mat_dist_mean[i] for i in top_indices]
+           # self.mat_dist_std = [self.mat_dist_std[i] for i in top_indices]
+           # self.mat_limb_length = [self.mat_limb_length[i] for i in top_indices]
+           # self.mat_reward = [self.mat_reward[i] for i in top_indices]
+           # self.mat_episode_length = [self.mat_episode_length[i] for i in top_indices]
+
+            for i in range(self.n_envs_train // self.Schaffs_batch_size):
+                for j in range(self.Schaffs_batch_size):
+                    self.training_env.env_method('set_env_id', i,
+                                             indices=[i * self.Schaffs_batch_size])
+
+        self.design_iteration = [1 for _ in range(self.n_envs_train)]
+        self.checker = [False for _ in range(self.n_envs_train)]
+        self.episode_rewards = {}
+        self.episode_length = {}
+
+        return True
+
+    def _on_step(self) -> bool:
+        st = time.time()
+
+        if 'rewards' in self.locals:
+            rewards = self.locals['rewards']
+            for i, reward in enumerate(rewards):
+                if i < len(self.checker):
+                    if self.checker[i] == False:
+                        self.episode_rewards[i] = self.episode_rewards.get(i, 0) + reward
+                        self.episode_length[i] = self.episode_length.get(i, 0) + 1
+
+        if 'dones' in self.locals:
+            dones = self.locals['dones']
+            for i, done in enumerate(dones):
+                if done:
+                    if i < len(self.checker):
+                        self.checker[i] = True
+
+        return True
 
     def modify_xml_walker_full_geometry(self, file_path, limb_lengths):
         """
@@ -990,8 +1370,6 @@ class Hebo_callback(BaseCallback):
             for i, done in enumerate(dones):
                 if done:
                     self.checker[i] = True
-
-
 
         return True
 
@@ -1744,15 +2122,15 @@ class evaluate_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.torso = 0.2014 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.thigh = 0.4353 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.shin = 0.4741 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.foot = 0.2428 #random.uniform(self.foot_length_range[0], self.foot_length_range[1])
+            self.torso = 0.2825 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.thigh = 0.2022 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.shin = 0.1847 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
+            self.foot = 0.3806 #random.uniform(self.foot_length_range[0], self.foot_length_range[1])
 
-            self.thickness_torso = 0.0289 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_thigh = 0.0150 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_shin = 0.0125 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_foot = 0.0122 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_torso = 0.0233 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_thigh = 0.0187 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_shin = 0.0214 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.thickness_foot = 0.0124 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
             self.limb_length = np.array(
                 [self.torso, self.thigh, self.shin, self.foot, self.thigh, self.shin, self.foot, self.thickness_torso,
                  self.thickness_thigh, self.thickness_shin, self.thickness_foot, self.thickness_thigh,
@@ -1830,15 +2208,28 @@ class evaluate_design(BaseCallback):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
+        original_lengths = {
+            'torso': 0.2,  # Default length of torso
+            'thigh': 0.225,  # Default length of thigh
+            'leg': 0.25,  # Default length of leg
+            'foot': 0.1  # Default length of foot
+        }
+
         torso_length = limb_lengths[0]
         thigh_length = limb_lengths[1]
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
-        # Names of the elements to modify
+
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
+        element_site_names = ['torso_thigh_site', 'thigh_leg_site', 'leg_foot_site', 'torso_thigh_left_site', 'thigh_leg_left_site', 'leg_foot_left_site']
+
+        motor_names = ['thigh_joint', 'leg_joint', 'foot_joint', 'thigh_left_joint', 'leg_left_joint',
+                       'foot_left_joint']
+
+
 
         # Set new size for torso (if needed)
         torso_geom = root.findall(".//geom[@name='torso_geom']")
@@ -1871,6 +2262,7 @@ class evaluate_design(BaseCallback):
                     # Update the position
                     geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
+
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
@@ -1885,6 +2277,7 @@ class evaluate_design(BaseCallback):
                 # Update the position
                 body.set('pos', ' '.join(map(str, new_body_pos)))
 
+
             joints = root.findall(f".//joint[@name='{name}_joint']")
             for joint in joints:
                 if 'pos' in joint.attrib:
@@ -1895,6 +2288,21 @@ class evaluate_design(BaseCallback):
                     elif 'foot' in name:
                         joint_pos = [-2 * foot_length, 0, 0.10000000000000001]
                     joint.set('pos', ' '.join(map(str, joint_pos)))
+
+
+        for i, name in enumerate(element_site_names):
+            sites = root.findall(f".//site[@name='{name}']")
+            for site in sites:
+                # Calculate new position based on the lengths of the preceding body parts
+                if 'torso_thigh' in name:
+                    new_site_pos = [0, 0, 0]
+                elif 'thigh_leg' in name:
+                    new_site_pos = [0, 0, leg_length]
+                elif 'leg_foot' in name:
+                    new_site_pos = [-2 * foot_length, 0, 0.10000000000000001]
+
+                # Update the position
+                site.set('pos', ' '.join(map(str, new_site_pos)))
         # Save the modified XML file
         tree.write(file_path)
 
