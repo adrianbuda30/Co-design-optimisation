@@ -40,7 +40,7 @@ def main():
     REWARD = np.array([1.0, 0.0])
     learning_rate_train = 0.0001
     n_epochs_train = 10
-    LOAD_OLD_MODEL = True
+    LOAD_OLD_MODEL = False
     n_steps_train = 512 * 2
     n_envs_train = 64
     entropy_coeff_train = 0.0
@@ -48,8 +48,8 @@ def main():
 
     batch_size_train = 128
     global_iteration = 0
-    TRAIN = False
-    CALL_BACK_FUNC = f"evaluate_design"
+    TRAIN = True
+    CALL_BACK_FUNC = f"Schaff_callback"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
@@ -91,7 +91,7 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"walker_Schaff_8param_nobuckling_1distrib"
+        model_name = f"walker_Schaff_cpu_test"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
