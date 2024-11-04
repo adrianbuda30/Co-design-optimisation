@@ -2,7 +2,7 @@ import mujoco_py
 import os
 
 # Define the path to your Walker model XML file
-walker_xml_path = "/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d_10.xml"
+walker_xml_path = "/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
 
 # Ensure the path exists
 assert os.path.exists(walker_xml_path), "The specified XML file does not exist."
