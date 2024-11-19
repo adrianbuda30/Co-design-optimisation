@@ -8,7 +8,6 @@ import time
 DEFAULT_CAMERA_CONFIG = {
     "distance": 4.0,
 }
-import imageio  # For saving video
 
 class AntEnv(MujocoEnv, utils.EzPickle):
     """
@@ -369,22 +368,16 @@ class AntEnv(MujocoEnv, utils.EzPickle):
             info["reward_ctrl"] = -contact_cost
 
         reward = rewards - costs
-        if terminated:
-            reward = -5
-        self.render_mode = 'rgb_array'
 
+        if self.render_mode == "human":
+            self.render()
 
-        if self.render_mode == 'rgb_array':
-            DEFAULT_CAMERA_CONFIG["distance"] = 6.0
-            frame = self.render()
-            if frame is not None:
-                self.frames.append(frame)
         return observation, reward, terminated, False, info
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
         velocity = self.data.qvel.flat.copy()
-        limb_length = self.limb_length / 2.0
+        limb_length = self.limb_length
         if self._exclude_current_positions_from_observation:
             position = position[2:]
 
@@ -415,23 +408,11 @@ class AntEnv(MujocoEnv, utils.EzPickle):
     def set_limb_length(self, limb_length):
         self.limb_length = limb_length
 
+    def set_env_id(self, env_id):
+        self.env_id = env_id
+
     def get_limb_length(self):
         return self.limb_length
     
     def get_env_id(self):
         return self.env_id
-
-    def save_video(self):
-        if self.frames and self.video_path:
-            try:
-                # Use the 'ffmpeg' backend to save the video
-                with imageio.get_writer(self.video_path, fps=10, codec='libx264') as writer:
-                    for frame in self.frames:
-                        writer.append_data(frame)
-                print(f"Video saved successfully to {self.video_path}")
-            except Exception as e:
-                print(f"Failed to save video: {e}")
-
-    def close(self):
-        self.save_video()
-        super().close()

@@ -1,8 +1,0 @@
-prefix=/home/divij/Documents/quadopter/MultirotorSim_Vervoorst/install
-
-Name: cart_pole_system_dynamics0
-Description: Description of cart_pole_system_dynamics0
-Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: roscpp std_msgs

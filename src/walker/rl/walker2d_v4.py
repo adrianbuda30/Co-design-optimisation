@@ -3,7 +3,6 @@ import numpy as np
 from gymnasium import utils
 from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
-import imageio  # For saving video
 import os  # For handling file paths
 import mujoco
 
@@ -108,33 +107,33 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
     def is_healthy(self):
         z, angle = self.data.qpos[1:3]
 
-        buckling_force_thigh = 0
-        buckling_force_leg = 0
-        buckling_force_foot = 0
+       # buckling_force_thigh = 0
+       # buckling_force_leg = 0
+       # buckling_force_foot = 0
 
-        force_array = self.data.sensordata
-        axial_force_thigh = np.minimum(force_array[2], force_array[11])
-        axial_force_leg = np.minimum(force_array[5], force_array[14])
-        axial_force_foot = np.minimum(force_array[6], force_array[15])
+       # force_array = self.data.sensordata
+       # axial_force_thigh = np.minimum(force_array[2], force_array[11])
+       # axial_force_leg = np.minimum(force_array[5], force_array[14])
+       # axial_force_foot = np.minimum(force_array[6], force_array[15])
 
         #print("Thigh:", axial_force_thigh, ", leg:", axial_force_leg, ", foot:", axial_force_foot)
 
-        if axial_force_thigh < 0 and np.abs(axial_force_thigh) > buckling_force_thigh:
-            buckling_force_thigh = np.abs(axial_force_thigh)
-        if axial_force_thigh < 0 and np.abs(axial_force_leg) > buckling_force_leg:
-            buckling_force_leg = np.abs(axial_force_leg)
-        if axial_force_thigh < 0 and np.abs(axial_force_foot) > buckling_force_foot:
-            buckling_force_foot = np.abs(axial_force_foot)
+       # if axial_force_thigh < 0 and np.abs(axial_force_thigh) > buckling_force_thigh:
+       #     buckling_force_thigh = np.abs(axial_force_thigh)
+       # if axial_force_thigh < 0 and np.abs(axial_force_leg) > buckling_force_leg:
+       #     buckling_force_leg = np.abs(axial_force_leg)
+       # if axial_force_thigh < 0 and np.abs(axial_force_foot) > buckling_force_foot:
+       #     buckling_force_foot = np.abs(axial_force_foot)
 
         min_z, max_z = self._healthy_z_range
         min_angle, max_angle = self._healthy_angle_range
-        max_force = self.buckling_force()
+        #max_force = self.buckling_force()
 
         #print("Buckling forces are: ", max_force)
 
         healthy_z = min_z < z < max_z
         healthy_angle = min_angle < angle < max_angle
-        healthy_buckling = buckling_force_thigh < max_force[0] and buckling_force_leg < max_force[1] and buckling_force_foot < max_force[2]
+        #healthy_buckling = buckling_force_thigh < max_force[0] and buckling_force_leg < max_force[1] and buckling_force_foot < max_force[2]
         is_healthy = healthy_z and healthy_angle #and healthy_buckling
 
         return is_healthy
