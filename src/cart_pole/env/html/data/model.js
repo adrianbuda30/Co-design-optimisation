@@ -1,1 +1,0 @@
-var modelInfo = {model:"aerofoil"};var modelHierarchy=[{model:"aerofoil",relativePath:"_internal.html",parent:"null"},];

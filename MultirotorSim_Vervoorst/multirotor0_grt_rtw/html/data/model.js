@@ -1,1 +1,0 @@
-var modelInfo = {model:"multirotor0"};var modelHierarchy=[{model:"multirotor0",relativePath:"_internal.html",parent:"null"},];

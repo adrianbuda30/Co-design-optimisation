@@ -1,2 +1,0 @@
-cart_pole_system_dynamics0:multirotor0:sim_multi:true0
--DCATKIN_DEVEL_PREFIX=/home/divij/Documents/quadopter/MultirotorSim_Vervoorst/devel -DCMAKE_INSTALL_PREFIX=/home/divij/Documents/quadopter/MultirotorSim_Vervoorst/install -G Ninja

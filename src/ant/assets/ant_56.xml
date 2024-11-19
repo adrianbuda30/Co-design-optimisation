@@ -1,0 +1,81 @@
+<mujoco model="ant">
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true" />
+  <option integrator="RK4" timestep="0.01" />
+  <custom>
+    <numeric data="0.0 0.0 0.55 1.0 0.0 0.0 0.0 0.0 1.0 0.0 -1.0 0.0 -1.0 0.0 1.0" name="init_qpos" />
+  </custom>
+  <default>
+    <joint armature="1" damping="1" limited="true" />
+    <geom conaffinity="0" condim="3" density="5.0" friction="1 0.5 0.5" margin="0.01" rgba="0.8 0.6 0.4 1" />
+  </default>
+  <asset>
+    <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0" type="skybox" width="100" />
+    <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127" />
+    <texture builtin="checker" height="100" name="texplane" rgb1="0 0 0" rgb2="0.8 0.8 0.8" type="2d" width="100" />
+    <material name="MatPlane" reflectance="0.5" shininess="1" specular="1" texrepeat="60 60" texture="texplane" />
+    <material name="geom" texture="texgeom" texuniform="true" />
+  </asset>
+  <worldbody>
+    <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1" />
+    <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane" />
+    <body name="torso" pos="0 0 0.75">
+      <camera name="track" mode="trackcom" pos="0 -11 5" xyaxes="1 0 0 0 0.5 1" />
+      <geom name="torso_geom" pos="0 0 0" size="0.08639461547136307" type="sphere" />
+      <joint armature="0" damping="0" limited="false" margin="0.01" name="root" pos="0 0 0" type="free" />
+      <body name="front_left_leg" pos="0 0 0">
+        <geom fromto="0 0 0 0.202957421541214 0.202957421541214 0" name="aux_1_geom" size="0.010678663849830627" type="capsule" />
+        <body name="aux_1" pos="0.202957421541214 0.202957421541214 0">
+          <joint axis="0 0 1" name="hip_1" pos="0.0 0.0 0.0" range="-30 30" type="hinge" />
+          <geom fromto="0 0 0 0.5541680455207825 0.5541680455207825 0" name="left_leg_geom" size="0.023167826235294342" type="capsule" />
+          <body name="left_leg_geom_aux" pos="0.5541680455207825 0.5541680455207825 0">
+            <joint axis="-1 1 0" name="ankle_1" pos="0.0 0.0 0.0" range="30 70" type="hinge" />
+            <geom fromto="0 0 0 0.9586087465286255 0.9586087465286255 0" name="left_ankle_geom" size="0.027227848768234253" type="capsule" />
+          </body>
+        </body>
+      </body>
+      <body name="front_right_leg" pos="0 0 0">
+        <geom fromto="0 0 0 -0.6670106053352356 0.6670106053352356 0" name="aux_2_geom" size="0.04401807859539986" type="capsule" />
+        <body name="aux_2" pos="-0.6670106053352356 0.6670106053352356 0">
+          <joint axis="0 0 1" name="hip_2" pos="0.0 0.0 0.0" range="-30 30" type="hinge" />
+          <geom fromto="0 0 0 -0.756494402885437 0.756494402885437 0" name="right_leg_geom" size="0.04100077599287033" type="capsule" />
+          <body name="right_leg_geom_aux" pos="-0.756494402885437 0.756494402885437 0">
+            <joint axis="1 1 0" name="ankle_2" pos="0.0 0.0 0.0" range="-70 -30" type="hinge" />
+            <geom fromto="0 0 0 -0.9213303923606873 0.9213303923606873 0" name="right_ankle_geom" size="0.03820204734802246" type="capsule" />
+          </body>
+        </body>
+      </body>
+      <body name="back_leg" pos="0 0 0">
+        <geom fromto="0 0 0 -0.40220311284065247 -0.40220311284065247 0" name="aux_3_geom" size="0.024627767503261566" type="capsule" />
+        <body name="aux_3" pos="-0.40220311284065247 -0.40220311284065247 0">
+          <joint axis="0 0 1" name="hip_3" pos="0.0 0.0 0.0" range="-30 30" type="hinge" />
+          <geom fromto="0 0 0 -0.611912727355957 -0.611912727355957 0" name="back_leg_geom" size="0.023540236055850983" type="capsule" />
+          <body name="back_leg_geom_aux" pos="-0.611912727355957 -0.611912727355957 0">
+            <joint axis="-1 1 0" name="ankle_3" pos="0.0 0.0 0.0" range="-70 -30" type="hinge" />
+            <geom fromto="0 0 0 -0.9606748819351196 -0.9606748819351196 0" name="third_ankle_geom" size="0.045164480805397034" type="capsule" />
+          </body>
+        </body>
+      </body>
+      <body name="right_back_leg" pos="0 0 0">
+        <geom fromto="0 0 0 0.6344804167747498 -0.6344804167747498 0" name="aux_4_geom" size="0.041719838976860046" type="capsule" />
+        <body name="aux_4" pos="0.6344804167747498 -0.6344804167747498 0">
+          <joint axis="0 0 1" name="hip_4" pos="0.0 0.0 0.0" range="-30 30" type="hinge" />
+          <geom fromto="0 0 0 0.23443448543548584 -0.23443448543548584 0" name="rightback_leg_geom" size="0.03170965611934662" type="capsule" />
+          <body name="rightback_leg_geom_aux" pos="0.23443448543548584 -0.23443448543548584 0">
+            <joint axis="1 1 0" name="ankle_4" pos="0.0 0.0 0.0" range="30 70" type="hinge" />
+            <geom fromto="0 0 0 0.39970648288726807 -0.39970648288726807 0" name="fourth_ankle_geom" size="0.03858193755149841" type="capsule" />
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="hip_4" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="ankle_4" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="hip_1" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="ankle_1" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="hip_2" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="ankle_2" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="hip_3" gear="150" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="ankle_3" gear="150" />
+  </actuator>
+</mujoco>

@@ -49,7 +49,7 @@ def main():
     batch_size_train = 128
     global_iteration = 0
     TRAIN = True
-    CALL_BACK_FUNC = f"Schaff_callback"
+    CALL_BACK_FUNC = f"Hebo_callback"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
