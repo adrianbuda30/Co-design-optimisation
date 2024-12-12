@@ -1,0 +1,72 @@
+<mujoco model="fixed_wing_drone">
+  <compiler angle="degree" inertiafromgeom="true" />
+  <default>
+    <joint armature="0.01" damping=".1" limited="true" />
+    <geom conaffinity="0" condim="3" contype="1" density="1000" friction=".7 .1 .1" rgba="0.8 0.6 .4 1" />
+  </default>
+    <option integrator="RK4" timestep="0.002" density="1.225" viscosity="0.00002" />
+    <worldbody>
+        <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1" />
+        <geom conaffinity="1" condim="3" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="400 400 400" type="plane" material="MatPlane" />
+        
+        <body name="fuselage" pos="0 0 100" euler="0 -90 0">
+            <camera name="track" mode="trackcom" pos="0 -5 -1.25" xyaxes="1 0 0 0 0 1" />
+            <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 0" stiffness="0" type="slide" />
+            <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="slide" />
+            <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 0" stiffness="0" type="slide" />
+            <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx_hinge" pos="0 0 0" stiffness="0" type="hinge" />
+            <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty_hinge" pos="0 0 0" stiffness="0" type="hinge" />
+            <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz_hinge" pos="0 0 0" stiffness="0" type="hinge" />
+            <geom name="fuselage_geom" type="cylinder" size="0.1 1.0" density="1000" />
+
+            
+            <body name="left_wing" pos="0 -2.1 0">
+                <joint axis="0 1 0" name="left_wing_y_joint" pos="0 2.0 0" stiffness="0" type="hinge" range="-45 45" />
+                <geom name="left_wing_geom" type="box" size="0.01 2.0 0.5" density="1000" />
+                <site name="left_wing_aero_center" pos="0 0.25 0" size="0.01" type="sphere" rgba="1 0 0 1" />
+                <site name="left_engine_site" pos="0 0.25 0" size="0.01" type="sphere" rgba="0 0 1 1" />
+            </body>
+            <body name="right_wing" pos="0 2.1 0">
+                <joint axis="0 1 0" name="right_wing_y_joint" pos="0 -2.0 0" stiffness="0" type="hinge" range="-45 45" />
+                <geom name="right_wing_geom" type="box" size="0.01 2.0 0.5" density="1000" />
+                <site name="right_wing_aero_center" pos="0 -0.25 0" size="0.01" type="sphere" rgba="1 0 0 1" />
+                <site name="right_engine_site" pos="0 -0.25 0" size="0.01" type="sphere" rgba="0 0 1 1" />
+            </body>
+
+            
+            <body name="left_tailplane" pos="0 -0.2 0.75">
+                <geom name="left_tailplane_geom" type="box" size="0.005 0.1 0.1" density="1000" />
+            </body>
+            <body name="right_tailplane" pos="0 0.2 0.75">
+                <geom name="right_tailplane_geom" type="box" size="0.005 0.1 0.1" density="1000" />
+            </body>
+            <body name="vertical_tailplane" pos="0.2 0 0.75">
+                <geom name="vertical_tailplane_geom" type="box" size="0.1 0.005 0.1" density="1000" />
+            </body>
+        </body>
+    </worldbody>
+
+    <actuator>
+        
+        <general name="left_wing_lift" site="left_wing_aero_center" />
+        <general name="right_wing_lift" site="right_wing_aero_center" />
+    </actuator>
+    <actuator>
+        
+        <general name="left_engine_thrust" site="left_engine_site" />
+        <general name="right_engine_thrust" site="right_engine_site" />
+    </actuator>
+
+    <actuator>
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="1" joint="left_wing_y_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="1" joint="right_wing_y_joint" />
+    </actuator>
+
+    <asset>
+        <texture type="skybox" builtin="gradient" rgb1=".4 .5 .6" rgb2="0 0 0" width="100" height="100" />
+        <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1" name="texgeom" random="0.01" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" type="cube" width="127" />
+        <texture builtin="checker" height="100" name="texplane" rgb1="0 0 0" rgb2="0.8 0.8 0.8" type="2d" width="100" />
+        <material name="MatPlane" reflectance="0.5" shininess="1" specular="1" texrepeat="60 60" texture="texplane" />
+        <material name="geom" texture="texgeom" texuniform="true" />
+    </asset>
+</mujoco>
