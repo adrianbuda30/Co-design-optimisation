@@ -41,7 +41,7 @@ def main():
     learning_rate_train = 0.0001
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
-    n_steps_train = 512 * 2
+    n_steps_train = 512 * 10
     n_envs_train = 64
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
