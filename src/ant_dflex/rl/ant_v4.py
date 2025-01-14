@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 import dflex as df
 
 import numpy as np
-import .load_utils as lu
-import .torch_utils as tu
+import load_utils as lu
+import torch_utils as tu
 
 
 np.set_printoptions(precision=5, linewidth=256, suppress=True)
@@ -301,3 +301,16 @@ class AntEnv(DFlexEnv):
         return (
             progress_reward + up_reward + heading_reward + height_reward + act_penalty
         )
+
+
+    def set_design_params(self, design_params):
+        self.design_params = design_params
+
+    def set_env_id(self, env_id):
+        self.env_id = env_id
+
+    def get_design_params(self):
+        return self.design_params
+
+    def get_env_id(self):
+        return self.env_id

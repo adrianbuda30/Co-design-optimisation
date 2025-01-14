@@ -31,14 +31,14 @@ def main():
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
     n_steps_train = 512 * 2
-    n_envs_train = 64
+    n_envs_train = 16
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
 
     batch_size_train = 128
     global_iteration = 0
     TRAIN = True
-    CALL_BACK_FUNC = f"Schaff_callback"
+    CALL_BACK_FUNC = f"random_design"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/ant/assets/ant.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/ant/assets/"
@@ -83,7 +83,7 @@ def main():
         # Create the vectorized environment using DummyVecEnv for evaluation
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
-        model_name = f"ant_Schaff_1distrib_trial_25params"
+        model_name = f"ant_dflex_trial"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/ant/ant_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
@@ -96,13 +96,13 @@ def main():
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cpu', verbose=1, tensorboard_log=log_dir)
+                            device='cuda', verbose=1, tensorboard_log=log_dir)
 
             new_model_eval = PPO("MlpPolicy", env=vec_env_eval, n_steps=n_steps_train,
                                  batch_size=batch_size_train, n_epochs=n_epochs_train,
                                  use_sde=use_sde, ent_coef=entropy_coeff_train,
                                  learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                                 device='cpu', verbose=1, tensorboard_log=log_dir)
+                                 device='cuda', verbose=1, tensorboard_log=log_dir)
 
             # Load the weights from the old model
             new_model.set_parameters(old_model.get_parameters())
@@ -112,7 +112,7 @@ def main():
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train, batch_size=batch_size_train,
                             n_epochs=n_epochs_train, use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train,
-                            policy_kwargs=onpolicy_kwargs, device='cpu', verbose=1, tensorboard_log=log_dir)
+                            policy_kwargs=onpolicy_kwargs, device='cuda', verbose=1, tensorboard_log=log_dir)
             print("New model created")
 
         # Train the new model
@@ -121,14 +121,6 @@ def main():
         if CALL_BACK_FUNC is f"random_design":
             param_changer = random_design(model_name=model_name, model=new_model, n_steps_train=n_steps_train,
                                           n_envs_train=n_envs_train, verbose=1)
-
-        elif CALL_BACK_FUNC is f"Schaff_callback":
-            param_changer = Schaff_callback(model_name=model_name, model=new_model, n_steps_train = n_steps_train, n_envs_train=n_envs_train, num_distributions=1, verbose=1)
-        elif CALL_BACK_FUNC is f"Schaff_callback_GMM":
-            param_changer = Schaff_callback_GMM(model_name=model_name, model=new_model, n_steps_train=n_steps_train, n_envs_train=n_envs_train, num_distributions=64, verbose=1)
-        elif CALL_BACK_FUNC is f"Hebo_Gauss_callback":
-            param_changer = Hebo_Gauss_callback(model_name=model_name, model=new_model, n_steps_train=n_steps_train,
-                                                n_envs_train=n_envs_train, verbose=1)
         elif CALL_BACK_FUNC is f"evaluate_design":
             param_changer = evaluate_design(model_name=model_name, model=new_model_eval,
                                             n_steps_train=n_steps_train, n_envs_train=n_envs_eval, verbose=1)

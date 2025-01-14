@@ -116,6 +116,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
 
         self.do_simulation(action, self.frame_skip)
 
+
         observation = self._get_obs()
 
         current_distance = np.linalg.norm(self.data.qpos[:3] - self.target)

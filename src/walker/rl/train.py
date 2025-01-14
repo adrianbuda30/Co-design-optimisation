@@ -41,15 +41,14 @@ def main():
     learning_rate_train = 0.0001
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
-    n_steps_train = 512 * 10
+    n_steps_train = 512 * 2
     n_envs_train = 64
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
-
-    batch_size_train = 128
+    batch_size_train = 64
     global_iteration = 0
     TRAIN = True
-    CALL_BACK_FUNC = f"Hebo_callback"
+    CALL_BACK_FUNC = f"Schaff_callback"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
@@ -91,24 +90,24 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"walker_Schaff_cpu_test"
+        model_name = f"walker_constant_sprint_test_gpu"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/bestDesign_walker_Schaff_8param_nobuckling_1distrib", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cpu', verbose=1, tensorboard_log=log_dir)
+                            device='cuda', verbose=1, tensorboard_log=log_dir)
 
             new_model_eval = PPO("MlpPolicy", env=vec_env_eval, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cpu', verbose=1, tensorboard_log=log_dir)
+                            device='cuda', verbose=1, tensorboard_log=log_dir)
 
 
             new_model.set_parameters(old_model.get_parameters())
@@ -118,7 +117,7 @@ def main():
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train, batch_size=batch_size_train,
                 n_epochs=n_epochs_train, use_sde=use_sde, ent_coef=entropy_coeff_train,
                 learning_rate=learning_rate_train,
-                policy_kwargs=onpolicy_kwargs, device='cpu', verbose=1, tensorboard_log=log_dir)
+                policy_kwargs=onpolicy_kwargs, device='cuda', verbose=1, tensorboard_log=log_dir)
             print("New model created")
 
         print("Model training...")
@@ -187,10 +186,10 @@ class constant_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.torso = 1.0
-            self.thigh = 1.0
-            self.shin = 1.0
-            self.foot = 0.4
+            self.torso = 0.25
+            self.thigh = 0.25
+            self.shin = 0.25
+            self.foot = 0.10
             self.thickness_torso = 0.05
             self.thickness_thigh = 0.05
             self.thickness_shin = 0.05
@@ -798,18 +797,66 @@ class Schaff_callback(BaseCallback):
         - file_path: Path to the XML file to modify.
         - limb_lengths: Sequence containing the new limb lengths, maintaining the sign.
         """
-
+        # Load the XML file
         tree = ET.parse(file_path)
         root = tree.getroot()
+
+        original_lengths = {
+            'torso': 0.2,  # Default length of torso
+            'thigh': 0.225,  # Default length of thigh
+            'leg': 0.25,  # Default length of leg
+            'foot': 0.1,  # Default length of foot
+            'torso_thick': 0.05,  # Default length of torso
+            'thigh_thick': 0.05,  # Default length of thigh
+            'leg_thick': 0.04,  # Default length of leg
+            'foot_thick': 0.06  # Default length of foot
+        }
 
         torso_length = limb_lengths[0]
         thigh_length = limb_lengths[1]
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
+        torso_thickness = limb_lengths[7]
+        thigh_thickness = limb_lengths[8]
+        leg_thickness = limb_lengths[9]
+        foot_thickness = limb_lengths[10]
+
+
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
+
+        motor_names = ['thigh_joint', 'leg_joint', 'foot_joint', 'thigh_left_joint', 'leg_left_joint',
+                       'foot_left_joint']
+
+        for i, motor_name in enumerate(motor_names):
+            motors = root.findall(f".//motor[@joint='{motor_name}']")
+            for motor in motors:
+
+                if 'joint' in motor.attrib:
+                    if 'thigh' in motor_name:
+                        new_length = thigh_length
+                        new_thickness = thigh_thickness
+                        original_length = original_lengths['thigh']
+                        original_thickness = original_lengths['thigh_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'leg' in motor_name:
+                        new_length = leg_length
+                        new_thickness = leg_thickness
+                        original_length = original_lengths['leg']
+                        original_thickness = original_lengths['leg_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'foot' in motor_name:
+                        new_length = foot_length
+                        new_thickness = foot_thickness
+                        original_length = original_lengths['foot']
+                        original_thickness = original_lengths['foot_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                motor.set('gear', str(new_gear_value))
 
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
@@ -838,11 +885,13 @@ class Schaff_callback(BaseCallback):
                     elif 'foot' in name:
                         new_geom_pos = [-foot_length, 0, 0.10000000000000001]
 
+
                     geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
+
                 if 'thigh' in name:
                     new_body_pos = [0, 0, - torso_length]
                 elif 'leg' in name:
@@ -865,7 +914,6 @@ class Schaff_callback(BaseCallback):
                     joint.set('pos', ' '.join(map(str, joint_pos)))
 
         tree.write(file_path)
-
 
 class Schaff_callback_GMM(BaseCallback):
     def __init__(self, model_name=f"matfile", model = None, n_steps_train=512 * 2, n_envs_train=50, num_distributions=50, verbose=0):
@@ -1165,18 +1213,66 @@ class Schaff_callback_GMM(BaseCallback):
         - file_path: Path to the XML file to modify.
         - limb_lengths: Sequence containing the new limb lengths, maintaining the sign.
         """
-
+        # Load the XML file
         tree = ET.parse(file_path)
         root = tree.getroot()
+
+        original_lengths = {
+            'torso': 0.2,  # Default length of torso
+            'thigh': 0.225,  # Default length of thigh
+            'leg': 0.25,  # Default length of leg
+            'foot': 0.1,  # Default length of foot
+            'torso_thick': 0.05,  # Default length of torso
+            'thigh_thick': 0.05,  # Default length of thigh
+            'leg_thick': 0.04,  # Default length of leg
+            'foot_thick': 0.06  # Default length of foot
+        }
 
         torso_length = limb_lengths[0]
         thigh_length = limb_lengths[1]
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
+        torso_thickness = limb_lengths[7]
+        thigh_thickness = limb_lengths[8]
+        leg_thickness = limb_lengths[9]
+        foot_thickness = limb_lengths[10]
+
+
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
+
+        motor_names = ['thigh_joint', 'leg_joint', 'foot_joint', 'thigh_left_joint', 'leg_left_joint',
+                       'foot_left_joint']
+
+        for i, motor_name in enumerate(motor_names):
+            motors = root.findall(f".//motor[@joint='{motor_name}']")
+            for motor in motors:
+
+                if 'joint' in motor.attrib:
+                    if 'thigh' in motor_name:
+                        new_length = thigh_length
+                        new_thickness = thigh_thickness
+                        original_length = original_lengths['thigh']
+                        original_thickness = original_lengths['thigh_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'leg' in motor_name:
+                        new_length = leg_length
+                        new_thickness = leg_thickness
+                        original_length = original_lengths['leg']
+                        original_thickness = original_lengths['leg_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'foot' in motor_name:
+                        new_length = foot_length
+                        new_thickness = foot_thickness
+                        original_length = original_lengths['foot']
+                        original_thickness = original_lengths['foot_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                motor.set('gear', str(new_gear_value))
 
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
@@ -1205,11 +1301,13 @@ class Schaff_callback_GMM(BaseCallback):
                     elif 'foot' in name:
                         new_geom_pos = [-foot_length, 0, 0.10000000000000001]
 
+
                     geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
+
                 if 'thigh' in name:
                     new_body_pos = [0, 0, - torso_length]
                 elif 'leg' in name:
@@ -2122,15 +2220,14 @@ class evaluate_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.torso = 0.2825 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.thigh = 0.2022 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.shin = 0.1847 #random.uniform(self.limb_length_range[0], self.limb_length_range[1])
-            self.foot = 0.3806 #random.uniform(self.foot_length_range[0], self.foot_length_range[1])
-
-            self.thickness_torso = 0.0233 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_thigh = 0.0187 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_shin = 0.0214 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
-            self.thickness_foot = 0.0124 #random.uniform(self.limb_thickness_range[0], self.limb_thickness_range[1])
+            self.torso = 0.25
+            self.thigh = 0.25
+            self.shin = 0.25
+            self.foot = 0.10
+            self.thickness_torso = 0.05
+            self.thickness_thigh = 0.05
+            self.thickness_shin = 0.05
+            self.thickness_foot = 0.05
             self.limb_length = np.array(
                 [self.torso, self.thigh, self.shin, self.foot, self.thigh, self.shin, self.foot, self.thickness_torso,
                  self.thickness_thigh, self.thickness_shin, self.thickness_foot, self.thickness_thigh,
@@ -2212,7 +2309,11 @@ class evaluate_design(BaseCallback):
             'torso': 0.2,  # Default length of torso
             'thigh': 0.225,  # Default length of thigh
             'leg': 0.25,  # Default length of leg
-            'foot': 0.1  # Default length of foot
+            'foot': 0.1,  # Default length of foot
+            'torso_thick': 0.05,  # Default length of torso
+            'thigh_thick': 0.05,  # Default length of thigh
+            'leg_thick': 0.04,  # Default length of leg
+            'foot_thick': 0.06  # Default length of foot
         }
 
         torso_length = limb_lengths[0]
@@ -2220,18 +2321,47 @@ class evaluate_design(BaseCallback):
         leg_length = limb_lengths[2]
         foot_length = limb_lengths[3]
 
+        torso_thickness = limb_lengths[7]
+        thigh_thickness = limb_lengths[8]
+        leg_thickness = limb_lengths[9]
+        foot_thickness = limb_lengths[10]
+
 
         element_body_names = ['thigh', 'leg', 'foot', 'thigh_left', 'leg_left', 'foot_left']
         element_geom_names = ['thigh_geom', 'leg_geom', 'foot_geom', 'thigh_left_geom', 'leg_left_geom',
                               'foot_left_geom']
-        element_site_names = ['torso_thigh_site', 'thigh_leg_site', 'leg_foot_site', 'torso_thigh_left_site', 'thigh_leg_left_site', 'leg_foot_left_site']
 
         motor_names = ['thigh_joint', 'leg_joint', 'foot_joint', 'thigh_left_joint', 'leg_left_joint',
                        'foot_left_joint']
 
+        for i, motor_name in enumerate(motor_names):
+            motors = root.findall(f".//motor[@joint='{motor_name}']")
+            for motor in motors:
 
+                if 'joint' in motor.attrib:
+                    if 'thigh' in motor_name:
+                        new_length = thigh_length
+                        new_thickness = thigh_thickness
+                        original_length = original_lengths['thigh']
+                        original_thickness = original_lengths['thigh_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
 
-        # Set new size for torso (if needed)
+                    elif 'leg' in motor_name:
+                        new_length = leg_length
+                        new_thickness = leg_thickness
+                        original_length = original_lengths['leg']
+                        original_thickness = original_lengths['leg_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                    elif 'foot' in motor_name:
+                        new_length = foot_length
+                        new_thickness = foot_thickness
+                        original_length = original_lengths['foot']
+                        original_thickness = original_lengths['foot_thick']
+                        new_gear_value = 100 * ((new_length * new_thickness ** 2) / (original_length * original_thickness ** 2))
+
+                motor.set('gear', str(new_gear_value))
+
         torso_geom = root.findall(".//geom[@name='torso_geom']")
         for geom in torso_geom:
             current_size = geom.get('size').split(' ')
@@ -2244,7 +2374,7 @@ class evaluate_design(BaseCallback):
             new_pos = current_pos[0:2] + [str(0.10000000000000001 + 2 * leg_length + torso_length + 2 * thigh_length)]
             body.set('pos', ' '.join(new_pos))
 
-        # Set new size and position for legs and other parts
+
         for i, name in enumerate(element_geom_names):
             geoms = root.findall(f".//geom[@name='{name}']")
             for geom in geoms:
@@ -2259,14 +2389,13 @@ class evaluate_design(BaseCallback):
                     elif 'foot' in name:
                         new_geom_pos = [-foot_length, 0, 0.10000000000000001]
 
-                    # Update the position
-                    geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
+                    geom.set('pos', ' '.join(map(str, new_geom_pos)))
 
         for i, name in enumerate(element_body_names):
             bodies = root.findall(f".//body[@name='{name}']")
             for body in bodies:
-                # Calculate new position based on the lengths of the preceding body parts
+
                 if 'thigh' in name:
                     new_body_pos = [0, 0, - torso_length]
                 elif 'leg' in name:
@@ -2274,9 +2403,8 @@ class evaluate_design(BaseCallback):
                 elif 'foot' in name:
                     new_body_pos = [2 * foot_length, 0, - leg_length - 0.10000000000000001]
 
-                # Update the position
-                body.set('pos', ' '.join(map(str, new_body_pos)))
 
+                body.set('pos', ' '.join(map(str, new_body_pos)))
 
             joints = root.findall(f".//joint[@name='{name}_joint']")
             for joint in joints:
@@ -2289,22 +2417,8 @@ class evaluate_design(BaseCallback):
                         joint_pos = [-2 * foot_length, 0, 0.10000000000000001]
                     joint.set('pos', ' '.join(map(str, joint_pos)))
 
-
-        for i, name in enumerate(element_site_names):
-            sites = root.findall(f".//site[@name='{name}']")
-            for site in sites:
-                # Calculate new position based on the lengths of the preceding body parts
-                if 'torso_thigh' in name:
-                    new_site_pos = [0, 0, 0]
-                elif 'thigh_leg' in name:
-                    new_site_pos = [0, 0, leg_length]
-                elif 'leg_foot' in name:
-                    new_site_pos = [-2 * foot_length, 0, 0.10000000000000001]
-
-                # Update the position
-                site.set('pos', ' '.join(map(str, new_site_pos)))
-        # Save the modified XML file
         tree.write(file_path)
+
 
 
 if __name__ == '__main__':

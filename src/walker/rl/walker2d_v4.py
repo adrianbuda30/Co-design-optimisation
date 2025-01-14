@@ -33,9 +33,10 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         render_mode='human',
         healthy_reward=1.0,
         terminate_when_unhealthy=True,
-        healthy_z_range=(0.2, 10.0),
+        healthy_z_range=(0.2, 5.0),
         healthy_angle_range=(-1.0, 1.0),
         reset_noise_scale=0.0,
+        track_length=10,
         exclude_current_positions_from_observation=True,
         **kwargs,
     ):
@@ -62,6 +63,9 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
 
         self._healthy_reward = healthy_reward
         self._terminate_when_unhealthy = terminate_when_unhealthy
+
+        self.track_length = track_length
+        self.start_position = 0
 
         self._healthy_z_range = healthy_z_range
         self._healthy_angle_range = healthy_angle_range
@@ -132,16 +136,13 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         #print("Buckling forces are: ", max_force)
 
         healthy_z = min_z < z < max_z
+        print(z)
         healthy_angle = min_angle < angle < max_angle
         #healthy_buckling = buckling_force_thigh < max_force[0] and buckling_force_leg < max_force[1] and buckling_force_foot < max_force[2]
         is_healthy = healthy_z and healthy_angle #and healthy_buckling
 
         return is_healthy
 
-    @property
-    def terminated(self):
-        terminated = not self.is_healthy if self._terminate_when_unhealthy else False
-        return terminated
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -160,6 +161,8 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         x_position_after = self.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
 
+        print(x_position_after, "and" , x_velocity)
+
         ctrl_cost = self.control_cost(action)
 
         forward_reward = self._forward_reward_weight * x_velocity
@@ -171,7 +174,16 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         observation = self._get_obs()
 
         reward = rewards - costs
-        terminated = self.terminated
+
+        if x_position_after >= self.start_position + self.track_length:
+            terminated = True
+            reward += 1000
+        elif self._terminate_when_unhealthy and not self.is_healthy:
+            terminated = True
+            reward -= 100
+        else:
+            terminated = False
+
         info = {
             "x_position": x_position_after,
             "x_velocity": x_velocity,
@@ -196,6 +208,8 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         )
 
         self.set_state(qpos, qvel)
+
+        self.start_position = self.data.qpos[0]
 
         observation = self._get_obs()
         return observation

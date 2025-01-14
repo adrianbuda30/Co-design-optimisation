@@ -84,7 +84,7 @@ def main():
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/drone/trained_model/drone_constant_design.zip", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/drone/trained_model/drone_constant_design_3.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,

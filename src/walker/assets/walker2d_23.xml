@@ -8,40 +8,40 @@
   <worldbody>
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1" />
     <geom conaffinity="1" condim="3" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane" material="MatPlane" />
-    <body name="torso" pos="0 0 3.0969082325696946">
+    <body name="torso" pos="0 0 2.1176218152046205">
       <camera name="track" mode="trackcom" pos="0 -5 -1.25" xyaxes="1 0 0 0 0 1" />
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 -1.25" stiffness="0" type="slide" />
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 -1.25" ref="1.25" stiffness="0" type="slide" />
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge" />
-      <geom friction="0.9" name="torso_geom" size="0.02871035411953926 0.14284293353557587" type="capsule" />
-      <body name="thigh" pos="0 0 -0.14284293353557587">
+      <geom friction="0.9" name="torso_geom" size="0.0351201668381691 0.1505255103111267" type="capsule" />
+      <body name="thigh" pos="0 0 -0.1505255103111267">
         <joint axis="0 -1 0" name="thigh_joint" pos="0 0 0" range="-150 0" type="hinge" />
         <site name="torso_thigh_site" pos="0 0 0" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-        <geom friction="0.9" pos="0 0 -0.4852253198623657" name="thigh_geom" size="0.04217377305030823 0.4852253198623657" type="capsule" />
-        <body name="leg" pos="0 0 -1.912257969379425">
-          <joint axis="0 -1 0" name="leg_joint" pos="0 0 0.9418073296546936" range="-150 0" type="hinge" />
+        <geom friction="0.9" pos="0 0 -0.3591342568397522" name="thigh_geom" size="0.031021367758512497 0.3591342568397522" type="capsule" />
+        <body name="leg" pos="0 0 -1.292682409286499">
+          <joint axis="0 -1 0" name="leg_joint" pos="0 0 0.5744138956069946" range="-150 0" type="hinge" />
           <site name="thigh_leg_site" pos="0 0 0.25" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-          <geom friction="0.9" name="leg_geom" size="0.02575044333934784 0.9418073296546936" type="capsule" />
-          <body name="foot" pos="0.5901327133178711 0 -1.0418073296546937">
-            <joint axis="0 -1 0" name="foot_joint" pos="-0.5901327133178711 0 0.1" range="-45 45" type="hinge" />
+          <geom friction="0.9" name="leg_geom" size="0.011381151154637337 0.5744138956069946" type="capsule" />
+          <body name="foot" pos="0.3302428126335144 0 -0.6744138956069946">
+            <joint axis="0 -1 0" name="foot_joint" pos="-0.3302428126335144 0 0.1" range="-45 45" type="hinge" />
             <site name="leg_foot_site" pos="-0.2 0 0.1" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-            <geom friction="0.9" pos="-0.29506635665893555 0 0.1" quat="0.70710678118654757 0 -0.70710678118654746 0" name="foot_geom" size="0.026810597628355026 0.29506635665893555" type="capsule" />
+            <geom friction="0.9" pos="-0.1651214063167572 0 0.1" quat="0.70710678118654757 0 -0.70710678118654746 0" name="foot_geom" size="0.018457192927598953 0.1651214063167572" type="capsule" />
           </body>
         </body>
       </body>
       
-      <body name="thigh_left" pos="0 0 -0.14284293353557587">
+      <body name="thigh_left" pos="0 0 -0.1505255103111267">
         <joint axis="0 -1 0" name="thigh_left_joint" pos="0 0 0" range="-150 0" type="hinge" />
         <site name="torso_thigh_left_site" pos="0 0 0" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-        <geom friction="0.9" name="thigh_left_geom" rgba=".7 .3 .6 1" size="0.04217377305030823 0.4852253198623657" pos="0 0 -0.4852253198623657" type="capsule" />
-        <body name="leg_left" pos="0 0 -1.912257969379425">
-          <joint axis="0 -1 0" name="leg_left_joint" pos="0 0 0.9418073296546936" range="-150 0" type="hinge" />
+        <geom friction="0.9" name="thigh_left_geom" rgba=".7 .3 .6 1" size="0.031021367758512497 0.3591342568397522" pos="0 0 -0.3591342568397522" type="capsule" />
+        <body name="leg_left" pos="0 0 -1.292682409286499">
+          <joint axis="0 -1 0" name="leg_left_joint" pos="0 0 0.5744138956069946" range="-150 0" type="hinge" />
           <site name="thigh_leg_left_site" pos="0 0 0.25" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-          <geom friction="0.9" name="leg_left_geom" rgba=".7 .3 .6 1" size="0.02575044333934784 0.9418073296546936" type="capsule" />
-          <body name="foot_left" pos="0.5901327133178711 0 -1.0418073296546937">
-            <joint axis="0 -1 0" name="foot_left_joint" pos="-0.5901327133178711 0 0.1" range="-45 45" type="hinge" />
+          <geom friction="0.9" name="leg_left_geom" rgba=".7 .3 .6 1" size="0.011381151154637337 0.5744138956069946" type="capsule" />
+          <body name="foot_left" pos="0.3302428126335144 0 -0.6744138956069946">
+            <joint axis="0 -1 0" name="foot_left_joint" pos="-0.3302428126335144 0 0.1" range="-45 45" type="hinge" />
             <site name="leg_foot_left_site" pos="-0.2 0 0.1" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-            <geom friction="1.9" name="foot_left_geom" rgba=".7 .3 .6 1" size="0.026810597628355026 0.29506635665893555" pos="-0.29506635665893555 0 0.1" type="capsule" quat="0.70710678118654757 0 -0.70710678118654746 0" />
+            <geom friction="1.9" name="foot_left_geom" rgba=".7 .3 .6 1" size="0.018457192927598953 0.1651214063167572" pos="-0.1651214063167572 0 0.1" type="capsule" quat="0.70710678118654757 0 -0.70710678118654746 0" />
           </body>
         </body>
       </body>

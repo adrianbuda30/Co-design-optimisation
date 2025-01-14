@@ -60,7 +60,7 @@ class DFlexEnv:
             jacobian_norm=None,
             stochastic_init=False,
             jacobian=False,
-            device="cpu",
+            device="cuda:0",
     ):
         self.no_grad = no_grad
         df.config.no_grad = self.no_grad
@@ -414,3 +414,5 @@ class DFlexEnv:
 
     def get_state(self):
         return self.state.joint_q.clone(), self.state.joint_qd.clone()
+
+
