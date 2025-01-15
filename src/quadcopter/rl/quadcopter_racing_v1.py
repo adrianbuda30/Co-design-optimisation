@@ -34,7 +34,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         render_mode='human',
         healthy_reward=1.0,
         healthy_z_range=(-4.0, 10.0),
-        healthy_angle_range=(-1.0, 1.0),
+        healthy_angle_range=(-1.5, 1.5),
         reset_noise_scale=0.0,
         exclude_current_positions_from_observation=False,
         **kwargs,
@@ -122,7 +122,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         return observation
 
     def step(self, action):
-        self.render_mode = "human"
+        #self.render_mode = "human"
 
         if not hasattr(self, 'prev_position'):
             self.prev_position = self.data.qpos[:3].copy()
@@ -160,7 +160,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         if np.linalg.norm(current_gate - current_position) < gate_passed_threshold:
             self.current_gate_index += 1
 
-            if self.current_gate_index >= len(self.gates):  # All gates passed
+            if self.current_gate_index == len(self.gates) - 1:  # All gates passed
                 done = True
                 return self._get_obs(), reward, done, False, {}
 
@@ -208,7 +208,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
             float: Calculated reward.
         """
         # Parameters
-        body_rate_penalty_coeff = 0 #0.01
+        body_rate_penalty_coeff = 0.01
         finish_reward = 50.0
         gate_reward = 10.0
 
@@ -224,7 +224,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         # Total reward
         reward = progress_reward - body_rate_penalty
 
-        if (current_distance_to_gate < 0.5 and self.current_gate_index < len(self.gates) - 1):
+        if current_distance_to_gate < 0.5 and self.current_gate_index < len(self.gates) - 1:
             reward += gate_reward
 
         # Add final reward if the last gate is passed
