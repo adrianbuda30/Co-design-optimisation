@@ -83,7 +83,7 @@ def main():
 
         env_fns = [lambda config=config: QuadcopterEnv(**config) for config in env_configs]
 
-        vec_env = SubprocVecEnv(env_fns, start_method='fork')
+        vec_env = SubprocVecEnv(env_fns, start_method='spawn')
 
         n_envs_eval = 1
         env_configs_eval = [{'env_id': i, 'ctrl_cost_weight': 0.5, 'render_mode': 'human'} for i in range(n_envs_eval)]

@@ -28,7 +28,7 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         self,
         env_id=0,
         forward_reward_weight=1.0,
-        xml_file=f"/home/ab2419/Co-design-optimisation/src/walker/assets/walker2d.xml",
+        xml_file=f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml",
         ctrl_cost_weight=1e-3,
         render_mode='human',
         healthy_reward=1.0,
@@ -56,7 +56,7 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         )
         self.env_id = env_id
         self.limb_length = np.ones(14)
-        xml_file_update = f"/home/ab2419/Co-design-optimisation/src/walker/assets/walker2d_{self.env_id}.xml"
+        xml_file_update = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d_{self.env_id}.xml"
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
 
@@ -136,7 +136,6 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         #print("Buckling forces are: ", max_force)
 
         healthy_z = min_z < z < max_z
-        print(z)
         healthy_angle = min_angle < angle < max_angle
         #healthy_buckling = buckling_force_thigh < max_force[0] and buckling_force_leg < max_force[1] and buckling_force_foot < max_force[2]
         is_healthy = healthy_z and healthy_angle #and healthy_buckling
@@ -160,8 +159,6 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         self.do_simulation(action, self.frame_skip)
         x_position_after = self.data.qpos[0]
         x_velocity = (x_position_after - x_position_before) / self.dt
-
-        print(x_position_after, "and" , x_velocity)
 
         ctrl_cost = self.control_cost(action)
 

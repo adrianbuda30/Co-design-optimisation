@@ -127,16 +127,13 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         if not hasattr(self, 'prev_position'):
             self.prev_position = self.data.qpos[:3].copy()
 
-        # Get the current gate and position
         current_gate = self.gates[self.current_gate_index]
         current_position = self.data.qpos[:3]
 
-
-        # Body rate (angular velocity)
         body_rate = self.data.qvel[3:6]  # Assuming these are angular velocities
 
 
-        # Calculate reward
+        # calculate reward
         reward = self._calculate_reward(
             current_position=current_position,
             prev_position=self.prev_position,
@@ -148,14 +145,11 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         done = False
 
 
-        # Update previous position
         self.prev_position = current_position.copy()
-
-        # Simulate the quadcopter's action
         self.do_simulation(action, self.frame_skip)
         observation = self._get_obs()
 
-        # Update gate if passed
+
         gate_passed_threshold = 0.5  # Threshold to consider a gate passed
         if np.linalg.norm(current_gate - current_position) < gate_passed_threshold:
             self.current_gate_index += 1
@@ -194,43 +188,27 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         return observation, reward, done, False, info
 
     def _calculate_reward(self, current_position, prev_position, current_gate, body_rate, action):
-        """
-        Calculate the reward based on progress through gates, body rate
 
-        Args:
-            current_position (np.array): Current position of the quadcopter.
-            prev_position (np.array): Position of the quadcopter at the previous timestep.
-            current_gate (np.array): Coordinates of the target gate.
-            body_rate (np.array): Angular velocity of the quadcopter.
-            action (np.array): Current action applied to the quadcopter.
-
-        Returns:
-            float: Calculated reward.
-        """
-        # Parameters
         body_rate_penalty_coeff = 0.01
         finish_reward = 50.0
         gate_reward = 10.0
 
-        # Distance-based progress reward
+        # reward (from Scaramuzza)
         prev_distance_to_gate = np.linalg.norm(current_gate - prev_position)
         current_distance_to_gate = np.linalg.norm(current_gate - current_position)
         progress_reward = prev_distance_to_gate - current_distance_to_gate
 
-        # Penalty for body rates (smoothness)
+        # body rate penalty
         body_rate_penalty = body_rate_penalty_coeff * np.linalg.norm(body_rate)
 
-
-        # Total reward
         reward = progress_reward - body_rate_penalty
 
         if current_distance_to_gate < 0.5 and self.current_gate_index < len(self.gates) - 1:
             reward += gate_reward
 
-        # Add final reward if the last gate is passed
+        # final gate reward
         if current_distance_to_gate < 0.5 and self.current_gate_index == len(self.gates) - 1:
             reward += finish_reward
-
 
 
         return reward
