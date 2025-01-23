@@ -8,40 +8,40 @@
   <worldbody>
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1" />
     <geom conaffinity="1" condim="3" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane" material="MatPlane" />
-    <body name="torso" pos="0 0 2.090098908543587">
+    <body name="torso" pos="0 0 2.6922600477933885">
       <camera name="track" mode="trackcom" pos="0 -5 -1.25" xyaxes="1 0 0 0 0 1" />
       <joint armature="0" axis="1 0 0" damping="0" limited="false" name="rootx" pos="0 0 -1.25" stiffness="0" type="slide" />
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="rootz" pos="0 0 -1.25" ref="1.25" stiffness="0" type="slide" />
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="rooty" pos="0 0 0" stiffness="0" type="hinge" />
-      <geom friction="0.9" name="torso_geom" size="0.01493249461054802 0.1250820904970169" type="capsule" />
-      <body name="thigh" pos="0 0 -0.1250820904970169">
+      <geom friction="0.9" name="torso_geom" size="0.030186429619789124 0.15969853103160858" type="capsule" />
+      <body name="thigh" pos="0 0 -0.15969853103160858">
         <joint axis="0 -1 0" name="thigh_joint" pos="0 0 0" range="-150 0" type="hinge" />
         <site name="torso_thigh_site" pos="0 0 0" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-        <geom friction="0.9" pos="0 0 -0.3093724250793457" name="thigh_geom" size="0.015808667987585068 0.3093724250793457" type="capsule" />
-        <body name="leg" pos="0 0 -1.2418808341026306">
-          <joint axis="0 -1 0" name="leg_joint" pos="0 0 0.6231359839439392" range="-150 0" type="hinge" />
+        <geom friction="0.9" pos="0 0 -0.6302690505981445" name="thigh_geom" size="0.032395780086517334 0.6302690505981445" type="capsule" />
+        <body name="leg" pos="0 0 -1.8465498089790344">
+          <joint axis="0 -1 0" name="leg_joint" pos="0 0 0.5860117077827454" range="-150 0" type="hinge" />
           <site name="thigh_leg_site" pos="0 0 0.25" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-          <geom friction="0.9" name="leg_geom" size="0.037130821496248245 0.6231359839439392" type="capsule" />
-          <body name="foot" pos="0.34203702211380005 0 -0.7231359839439392">
-            <joint axis="0 -1 0" name="foot_joint" pos="-0.34203702211380005 0 0.1" range="-45 45" type="hinge" />
+          <geom friction="0.9" name="leg_geom" size="0.033265385776758194 0.5860117077827454" type="capsule" />
+          <body name="foot" pos="0.23900946974754333 0 -0.6860117077827453">
+            <joint axis="0 -1 0" name="foot_joint" pos="-0.23900946974754333 0 0.1" range="-45 45" type="hinge" />
             <site name="leg_foot_site" pos="-0.2 0 0.1" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-            <geom friction="0.9" pos="-0.17101851105690002 0 0.1" quat="0.70710678118654757 0 -0.70710678118654746 0" name="foot_geom" size="0.03430737182497978 0.17101851105690002" type="capsule" />
+            <geom friction="0.9" pos="-0.11950473487377167 0 0.1" quat="0.70710678118654757 0 -0.70710678118654746 0" name="foot_geom" size="0.028586771339178085 0.11950473487377167" type="capsule" />
           </body>
         </body>
       </body>
       
-      <body name="thigh_left" pos="0 0 -0.1250820904970169">
+      <body name="thigh_left" pos="0 0 -0.15969853103160858">
         <joint axis="0 -1 0" name="thigh_left_joint" pos="0 0 0" range="-150 0" type="hinge" />
         <site name="torso_thigh_left_site" pos="0 0 0" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-        <geom friction="0.9" name="thigh_left_geom" rgba=".7 .3 .6 1" size="0.015808667987585068 0.3093724250793457" pos="0 0 -0.3093724250793457" type="capsule" />
-        <body name="leg_left" pos="0 0 -1.2418808341026306">
-          <joint axis="0 -1 0" name="leg_left_joint" pos="0 0 0.6231359839439392" range="-150 0" type="hinge" />
+        <geom friction="0.9" name="thigh_left_geom" rgba=".7 .3 .6 1" size="0.032395780086517334 0.6302690505981445" pos="0 0 -0.6302690505981445" type="capsule" />
+        <body name="leg_left" pos="0 0 -1.8465498089790344">
+          <joint axis="0 -1 0" name="leg_left_joint" pos="0 0 0.5860117077827454" range="-150 0" type="hinge" />
           <site name="thigh_leg_left_site" pos="0 0 0.25" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-          <geom friction="0.9" name="leg_left_geom" rgba=".7 .3 .6 1" size="0.037130821496248245 0.6231359839439392" type="capsule" />
-          <body name="foot_left" pos="0.34203702211380005 0 -0.7231359839439392">
-            <joint axis="0 -1 0" name="foot_left_joint" pos="-0.34203702211380005 0 0.1" range="-45 45" type="hinge" />
+          <geom friction="0.9" name="leg_left_geom" rgba=".7 .3 .6 1" size="0.033265385776758194 0.5860117077827454" type="capsule" />
+          <body name="foot_left" pos="0.23900946974754333 0 -0.6860117077827453">
+            <joint axis="0 -1 0" name="foot_left_joint" pos="-0.23900946974754333 0 0.1" range="-45 45" type="hinge" />
             <site name="leg_foot_left_site" pos="-0.2 0 0.1" size="0.01" type="sphere" rgba="1 0 0 0.5" />
-            <geom friction="1.9" name="foot_left_geom" rgba=".7 .3 .6 1" size="0.03430737182497978 0.17101851105690002" pos="-0.17101851105690002 0 0.1" type="capsule" quat="0.70710678118654757 0 -0.70710678118654746 0" />
+            <geom friction="1.9" name="foot_left_geom" rgba=".7 .3 .6 1" size="0.028586771339178085 0.11950473487377167" pos="-0.11950473487377167 0 0.1" type="capsule" quat="0.70710678118654757 0 -0.70710678118654746 0" />
           </body>
         </body>
       </body>
@@ -49,12 +49,12 @@
   </worldbody>
   <actuator>
     
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="13.74515469325057" joint="thigh_joint" />
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="214.77906889626377" joint="leg_joint" />
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="55.913350738447534" joint="foot_joint" />
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="13.74515469325057" joint="thigh_left_joint" />
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="214.77906889626377" joint="leg_left_joint" />
-    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="55.913350738447534" joint="foot_left_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="117.59269377058183" joint="thigh_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="162.1180719302139" joint="leg_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="27.127690855392395" joint="foot_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="117.59269377058183" joint="thigh_left_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="162.1180719302139" joint="leg_left_joint" />
+    <motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="27.127690855392395" joint="foot_left_joint" />
     
   </actuator>
     <asset>

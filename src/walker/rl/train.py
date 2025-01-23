@@ -48,7 +48,7 @@ def main():
     batch_size_train = 64
     global_iteration = 0
     TRAIN = True
-    CALL_BACK_FUNC = f"Schaff_callback"
+    CALL_BACK_FUNC = f"constant_design"
 
     original_xml_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml"
     destination_folder = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/"
@@ -101,13 +101,13 @@ def main():
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cuda', verbose=1, tensorboard_log=log_dir)
+                            device='cpu', verbose=1, tensorboard_log=log_dir)
 
             new_model_eval = PPO("MlpPolicy", env=vec_env_eval, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cuda', verbose=1, tensorboard_log=log_dir)
+                            device='cpu', verbose=1, tensorboard_log=log_dir)
 
 
             new_model.set_parameters(old_model.get_parameters())
@@ -117,7 +117,7 @@ def main():
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train, batch_size=batch_size_train,
                 n_epochs=n_epochs_train, use_sde=use_sde, ent_coef=entropy_coeff_train,
                 learning_rate=learning_rate_train,
-                policy_kwargs=onpolicy_kwargs, device='cuda', verbose=1, tensorboard_log=log_dir)
+                policy_kwargs=onpolicy_kwargs, device='cpu', verbose=1, tensorboard_log=log_dir)
             print("New model created")
 
         print("Model training...")
