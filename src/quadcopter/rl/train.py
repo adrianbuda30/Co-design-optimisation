@@ -46,7 +46,7 @@ def main():
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
     n_steps_train = 512 * 10
-    n_envs_train = 8
+    n_envs_train = 32
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
 
@@ -83,7 +83,7 @@ def main():
 
         env_fns = [lambda config=config: QuadcopterEnv(**config) for config in env_configs]
 
-        vec_env = SubprocVecEnv(env_fns, start_method='spawn')
+        vec_env = SubprocVecEnv(env_fns, start_method='fork')
 
         n_envs_eval = 1
         env_configs_eval = [{'env_id': i, 'ctrl_cost_weight': 0.5, 'render_mode': 'human'} for i in range(n_envs_eval)]
@@ -95,7 +95,7 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"quadcopter_constant_design_racing_3"
+        model_name = f"quadcopter_constant_design_racing_newact"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/quadcopter_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
@@ -324,38 +324,9 @@ class constant_design(BaseCallback):
             thruster.set('pos', ' '.join(new_pos))
 
 
-        motors = root.findall(".//site[@name='motor0']")
+        motors = root.findall(".//motor[@site='motor']")
         for motor in motors:
-            new_pos = [str(arm0)] + [str(arm0)] + [str(0)]
-            motor.set('pos', ' '.join(new_pos))
-        motors = root.findall(".//site[@name='motor1']")
-        for motor in motors:
-            new_pos = [str(arm1)] + [str(-arm1)] + [str(0)]
-            motor.set('pos', ' '.join(new_pos))
-        motors = root.findall(".//site[@name='motor2']")
-        for motor in motors:
-            new_pos = [str(-arm2)] + [str(-arm2)] + [str(0)]
-            motor.set('pos', ' '.join(new_pos))
-        motors = root.findall(".//site[@name='motor3']")
-        for motor in motors:
-            new_pos = [str(-arm3)] + [str(arm3)] + [str(0)]
-            motor.set('pos', ' '.join(new_pos))
-
-        motors = root.findall(".//motor[@site='motor0']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(-arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor1']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm1 * thruster1 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(arm1 * arm1 * thruster1 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor2']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm2 * thruster2 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(-arm2 * arm2 * thruster2 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor3']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm3 * thruster3 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(arm3 * arm3 * thruster3 / (original_lengths['arm'] * original_lengths['thruster']))]
+            new_gear = [str(0)] + [str(0)] + [str(arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))]
             motor.set('gear', ' '.join(new_gear))
         tree.write(file_path)
 

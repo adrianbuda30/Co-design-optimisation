@@ -34,7 +34,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         render_mode='human',
         healthy_reward=1.0,
         healthy_z_range=(-4.0, 10.0),
-        healthy_angle_range=(-1.5, 1.5),
+        healthy_angle_range=(-np.pi / 4, np.pi / 4),
         reset_noise_scale=0.0,
         exclude_current_positions_from_observation=False,
         **kwargs,
@@ -59,6 +59,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         self._ctrl_cost_weight = ctrl_cost_weight
 
         self.current_gate_index = 0
+        self.num_future_gates = 2
 
 
         self._healthy_reward = healthy_reward
@@ -84,7 +85,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation
         )
-        obs_shape = 20
+        obs_shape = 20 + self.num_future_gates * 4 * 3
         if exclude_current_positions_from_observation:
             observation_space = Box(
                 low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
@@ -113,12 +114,30 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         position = self.data.qpos.flat.copy()
         velocity = self.data.qvel.flat.copy()
 
-
         design_params = self.design_params
+
+        gate_obs = []
+        for i in range(self.num_future_gates):
+            gate_index = self.current_gate_index + i
+            if gate_index < len(self.gates):
+                # Get the corners of the current gate
+                gate_corners = self._get_gate_corners(self.gates[gate_index])
+
+                # Calculate the relative position to each corner
+                for corner in gate_corners:
+                    delta_p = corner - position[:3]
+                    gate_obs.append(delta_p)
+
+            else:
+                # If there are no more gates, fill with zeros
+                gate_obs.extend([np.zeros(3)] * 4)
+
+        gate_obs = np.array(gate_obs).flatten()
+
         if self._exclude_current_positions_from_observation:
             position = position[1:]
 
-        observation = np.concatenate((position, velocity, design_params)).ravel()
+        observation = np.concatenate((position, velocity, design_params, gate_obs)).ravel()
         return observation
 
     def step(self, action):
@@ -212,6 +231,22 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
 
 
         return reward
+
+    def _get_gate_corners(self, gate_centre):
+        """
+        Given the centre of a gate, calculate the positions of its four corners.
+        Assumes a standard size for all gates.
+        """
+        gate_width = 1.0  # Adjust as needed
+        gate_height = 1.0  # Adjust as needed
+
+        corners = [
+            gate_centre + np.array([gate_width / 2, gate_height / 2, 0]),
+            gate_centre + np.array([gate_width / 2, -gate_height / 2, 0]),
+            gate_centre + np.array([-gate_width / 2, gate_height / 2, 0]),
+            gate_centre + np.array([-gate_width / 2, -gate_height / 2, 0]),
+        ]
+        return corners
 
 
     def reset_model(self, seed=1):
