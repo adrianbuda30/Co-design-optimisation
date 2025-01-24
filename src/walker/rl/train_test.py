@@ -14,16 +14,16 @@ import torch
 def main():
     #training parameters
     use_sde = False
-    hidden_sizes_train = 256
+    hidden_sizes_train = 64
     REWARD = np.array([1.0, 0.0])
     learning_rate_train = 0.0001
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
     n_steps_train = 512 * 2
-    n_envs_train = 256
+    n_envs_train = 64
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
-    batch_size_train = 64
+    batch_size_train = 512
     global_iteration = 0
     TRAIN = True
     CALL_BACK_FUNC = f"constant_design"
@@ -59,24 +59,24 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"walker_constant_test_gpu"
-        log_dir = f"/home/ab2419/Co-design-optimisation/src/walker/walker_tensorboard/TB_{model_name}"
+        model_name = f"walker_constant_test_gpu_large_batch_small_NN"
+        log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cuda', verbose=1, tensorboard_log=log_dir)
+                            device='cpu', verbose=1, tensorboard_log=log_dir)
 
             new_model_eval = PPO("MlpPolicy", env=vec_env_eval, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
                             use_sde=use_sde, ent_coef=entropy_coeff_train,
                             learning_rate=learning_rate_train, policy_kwargs=onpolicy_kwargs,
-                            device='cuda', verbose=1, tensorboard_log=log_dir)
+                            device='cpu', verbose=1, tensorboard_log=log_dir)
 
 
             new_model.set_parameters(old_model.get_parameters())
@@ -86,7 +86,7 @@ def main():
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train, batch_size=batch_size_train,
                 n_epochs=n_epochs_train, use_sde=use_sde, ent_coef=entropy_coeff_train,
                 learning_rate=learning_rate_train,
-                policy_kwargs=onpolicy_kwargs, device='cuda', verbose=1, tensorboard_log=log_dir)
+                policy_kwargs=onpolicy_kwargs, device='cpu', verbose=1, tensorboard_log=log_dir)
             print("New model created")
 
         print("Model training...")
@@ -100,7 +100,7 @@ def main():
         if TRAIN is True:
             new_model.learn(total_timesteps = total_timesteps_train ,progress_bar=True, callback=param_changer)
             print("Model trained, saving...")
-            new_model.save(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/random_design/{model_name}")
+            new_model.save(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/random_design/{model_name}")
             print("Model saved")
             LOAD_OLD_MODEL = True
             vec_env.close()
@@ -165,7 +165,7 @@ class constant_design(BaseCallback):
     def _on_rollout_end(self) -> bool:
 
         self.model.save(
-            f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/constant_design/{self.model_name}")
+            f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/{self.model_name}")
 
 
         for i in range(self.n_envs_train):
@@ -181,7 +181,7 @@ class constant_design(BaseCallback):
         }
 
         print("saving matlab data...")
-        file_path = f"/home/ab2419/Co-design-optimisation/src/walker/rl/trained_model/{self.mat_file_name}.mat"
+        file_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/{self.mat_file_name}.mat"
         savemat(file_path, output_data)
         self.average_episode_length = []
         self.average_reward = []
