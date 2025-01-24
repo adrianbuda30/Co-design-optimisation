@@ -49,7 +49,6 @@ def main():
     n_envs_train = 32
     entropy_coeff_train = 0.0
     total_timesteps_train = n_steps_train * n_envs_train * 10000
-
     batch_size_train = 512
     global_iteration = 0
     TRAIN = True
@@ -191,14 +190,14 @@ class constant_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.arm_1 = 0.1
-            self.arm_2 = 0.1
-            self.arm_3 = 0.1
-            self.arm_4 = 0.1
-            self.thruster_1 = 0.05
-            self.thruster_2 = 0.05
-            self.thruster_3 = 0.05
-            self.thruster_4 = 0.05
+            self.arm_1 = 0.2
+            self.arm_2 = 0.2
+            self.arm_3 = 0.2
+            self.arm_4 = 0.2
+            self.thruster_1 = 0.1
+            self.thruster_2 = 0.1
+            self.thruster_3 = 0.1
+            self.thruster_4 = 0.1
 
             self.design_params = np.array([self.arm_1, self.arm_2, self.arm_3, self.arm_4, self.thruster_1, self.thruster_2, self.thruster_3, self.thruster_4])
 
