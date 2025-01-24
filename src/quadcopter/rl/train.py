@@ -190,14 +190,14 @@ class constant_design(BaseCallback):
 
         # reset the environments
         for i in range(self.n_envs_train):
-            self.arm_1 = 0.2
-            self.arm_2 = 0.2
-            self.arm_3 = 0.2
-            self.arm_4 = 0.2
-            self.thruster_1 = 0.1
-            self.thruster_2 = 0.1
-            self.thruster_3 = 0.1
-            self.thruster_4 = 0.1
+            self.arm_1 = 0.1
+            self.arm_2 = 0.1
+            self.arm_3 = 0.1
+            self.arm_4 = 0.1
+            self.thruster_1 = 0.05
+            self.thruster_2 = 0.05
+            self.thruster_3 = 0.05
+            self.thruster_4 = 0.05
 
             self.design_params = np.array([self.arm_1, self.arm_2, self.arm_3, self.arm_4, self.thruster_1, self.thruster_2, self.thruster_3, self.thruster_4])
 
