@@ -60,11 +60,11 @@ def main():
 
 
         model_name = f"walker_constant_test_gpu_large_batch_small_NN"
-        log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
+        log_dir = f"/home/ab2419/Co-design-optimisation/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
+            old_model = PPO.load(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
@@ -100,7 +100,7 @@ def main():
         if TRAIN is True:
             new_model.learn(total_timesteps = total_timesteps_train ,progress_bar=True, callback=param_changer)
             print("Model trained, saving...")
-            new_model.save(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/random_design/{model_name}")
+            new_model.save(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/random_design/{model_name}")
             print("Model saved")
             LOAD_OLD_MODEL = True
             vec_env.close()
@@ -164,10 +164,6 @@ class constant_design(BaseCallback):
 
     def _on_rollout_end(self) -> bool:
 
-        self.model.save(
-            f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/{self.model_name}")
-
-
         for i in range(self.n_envs_train):
             self.mat_reward.append(self.episode_rewards[i])
             self.mat_iteration.append(self.episode_length[i])
@@ -180,9 +176,6 @@ class constant_design(BaseCallback):
             "iteration": np.array(self.mat_iteration),
         }
 
-        print("saving matlab data...")
-        file_path = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/rl/trained_model/{self.mat_file_name}.mat"
-        savemat(file_path, output_data)
         self.average_episode_length = []
         self.average_reward = []
         self.design_iteration = [0 for _ in range(self.n_envs_train)]
