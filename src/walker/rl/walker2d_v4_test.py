@@ -27,7 +27,7 @@ class Walker2dEnv(MujocoEnv, utils.EzPickle):
         self,
         env_id=0,
         forward_reward_weight=1.0,
-        xml_file=f"/home/ab2419/Co-design-optimisation/src/walker/assets/walker2d.xml",
+        xml_file=f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/assets/walker2d.xml",
         ctrl_cost_weight=1e-3,
         render_mode='human',
         healthy_reward=1.0,

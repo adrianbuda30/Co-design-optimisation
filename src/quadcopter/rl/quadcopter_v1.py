@@ -110,7 +110,7 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         return observation
 
     def step(self, action):
-        self.render_mode = "human"
+        #self.render_mode = "human"
 
         prev_distance = np.linalg.norm(self.data.qpos[:3] - self.target)
 

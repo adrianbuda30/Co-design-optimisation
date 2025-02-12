@@ -60,11 +60,11 @@ def main():
 
 
         model_name = f"walker_constant_test_gpu_large_batch_small_NN"
-        log_dir = f"/home/ab2419/Co-design-optimisation/src/walker/walker_tensorboard/TB_{model_name}"
+        log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/walker_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/constant_design/walker_constant_sprint_test.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
@@ -100,7 +100,7 @@ def main():
         if TRAIN is True:
             new_model.learn(total_timesteps = total_timesteps_train ,progress_bar=True, callback=param_changer)
             print("Model trained, saving...")
-            new_model.save(f"/home/ab2419/Co-design-optimisation/src/walker/trained_model/random_design/{model_name}")
+            new_model.save(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/walker/trained_model/random_design/{model_name}")
             print("Model saved")
             LOAD_OLD_MODEL = True
             vec_env.close()

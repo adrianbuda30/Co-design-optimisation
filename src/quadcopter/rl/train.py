@@ -46,10 +46,10 @@ def main():
     n_epochs_train = 10
     LOAD_OLD_MODEL = False
     n_steps_train = 512 * 10
-    n_envs_train = 32
+    n_envs_train = 8
     entropy_coeff_train = 0.0
-    total_timesteps_train = n_steps_train * n_envs_train * 10000
-    batch_size_train = 512
+    total_timesteps_train = n_steps_train * n_envs_train * 1000
+    batch_size_train = 128
     global_iteration = 0
     TRAIN = True
     CALL_BACK_FUNC = f"constant_design"
@@ -94,12 +94,12 @@ def main():
         vec_env_eval = DummyVecEnv(env_fns_eval)
 
 
-        model_name = f"quadcopter_constant_design_racing_newact"
+        model_name = f"quadcopter_constant_design_racing_circular_3"
         log_dir = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/quadcopter_tensorboard/TB_{model_name}"
 
         if LOAD_OLD_MODEL is True:
             new_model = []
-            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/trained_model/quadcopter_constant_design_racing_2.zip", env = vec_env)
+            old_model = PPO.load(f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/trained_model/quadcopter_constant_design_racing_circular_2.zip", env = vec_env)
 
             new_model = PPO("MlpPolicy", env=vec_env, n_steps=n_steps_train,
                             batch_size=batch_size_train, n_epochs=n_epochs_train,
@@ -2232,24 +2232,11 @@ class evaluate_design(BaseCallback):
             thruster.set('pos', ' '.join(new_pos))
 
 
-        motors = root.findall(".//motor[@site='motor0']")
+        motors = root.findall(".//motor[@site='motor']")
         for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(-arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor1']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm1 * thruster1 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(arm1 * arm1 * thruster1 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor2']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm2 * thruster2 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(-arm2 * arm2 * thruster2 / (original_lengths['arm'] * original_lengths['thruster']))]
-            motor.set('gear', ' '.join(new_gear))
-        motors = root.findall(".//motor[@site='motor3']")
-        for motor in motors:
-            new_gear = [str(0)] + [str(0)] + [str(arm3 * thruster3 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(0)] + [str(0)] + [str(arm3 * arm3 * thruster3 / (original_lengths['arm'] * original_lengths['thruster']))]
+            new_gear = [str(0)] + [str(0)] + [str(arm0 * thruster0 / (original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))] + [str(arm0 * arm0 * thruster0 / (original_lengths['arm'] * original_lengths['arm'] * original_lengths['thruster']))]
             motor.set('gear', ' '.join(new_gear))
         tree.write(file_path)
-
 
 
 if __name__ == '__main__':

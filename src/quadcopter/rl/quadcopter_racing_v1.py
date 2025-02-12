@@ -28,70 +28,59 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
     def __init__(
         self,
         env_id=0,
-        forward_reward_weight=1.0,
         xml_file=f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/assets/quadcopter.xml",
         ctrl_cost_weight=1e-3,
         render_mode='human',
-        healthy_reward=1.0,
-        healthy_z_range=(-4.0, 10.0),
-        healthy_angle_range=(-np.pi / 4, np.pi / 4),
+        healthy_z_range=(0.0, 6.0),
+        healthy_angle_range=(-np.pi / 2, np.pi / 2),
+        max_acc = 10000,
+        max_acc_angle = 10000,
         reset_noise_scale=0.0,
-        exclude_current_positions_from_observation=False,
         **kwargs,
     ):
         utils.EzPickle.__init__(
             self,
             xml_file,
-            forward_reward_weight,
             ctrl_cost_weight,
             render_mode,
-            healthy_reward,
             healthy_z_range,
             healthy_angle_range,
             reset_noise_scale,
-            exclude_current_positions_from_observation,
             **kwargs,
         )
         self.env_id = env_id
         self.design_params = np.ones(8)
         xml_file_update = f"/Users/adrianbuda/Downloads/master_thesis-aerofoil/src/quadcopter/assets/quadcopter_{self.env_id}.xml"
-        self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
 
         self.current_gate_index = 0
         self.num_future_gates = 2
 
+        self.current_index = 0
 
-        self._healthy_reward = healthy_reward
 
         self.gates = [
-            np.array([-4, 4, 0]),
-            np.array([0, 8, 0]),
-            np.array([4, 4, 0]),
-            np.array([0, 0, 0])
-            #np.array([-4.5, -6, 1]),
-            #np.array([4.5, -0.5, 1]),
-            #np.array([-2, 7, 1]),
-            #np.array([-1, 1, 3.5])
+            np.array([-1, -1, 3.5]),
+            np.array([9, 6, 1]),
+            np.array([9, -4, 1]),
+            np.array([-4.5, -6, 3.25]),
+            np.array([-4.5, -6, 1]),
+            np.array([4.5, -0.5, 1]),
+            np.array([-2, 7, 1]),
+            np.array([-1, -1, 3.5]),
         ]
 
 
         self._healthy_z_range = healthy_z_range
         self._healthy_angle_range = healthy_angle_range
+        self.max_acc = max_acc
+        self.max_acc_angle = max_acc_angle
 
 
         self._reset_noise_scale = reset_noise_scale
-
-        self._exclude_current_positions_from_observation = (
-            exclude_current_positions_from_observation
-        )
         obs_shape = 20 + self.num_future_gates * 4 * 3
-        if exclude_current_positions_from_observation:
-            observation_space = Box(
-                low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
-            )
-        else:
-            observation_space = Box(
+
+        observation_space = Box(
                 low=-np.inf, high=np.inf, shape=(obs_shape + 1,), dtype=np.float64
             )
 
@@ -134,66 +123,79 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
 
         gate_obs = np.array(gate_obs).flatten()
 
-        if self._exclude_current_positions_from_observation:
-            position = position[1:]
-
         observation = np.concatenate((position, velocity, design_params, gate_obs)).ravel()
         return observation
 
     def step(self, action):
         #self.render_mode = "human"
 
-        if not hasattr(self, 'prev_position'):
-            self.prev_position = self.data.qpos[:3].copy()
+        self.current_index += 1
 
         current_gate = self.gates[self.current_gate_index]
+        self.do_simulation(action, self.frame_skip)
+        observation = self._get_obs()
+
         current_position = self.data.qpos[:3]
 
         body_rate = self.data.qvel[3:6]  # Assuming these are angular velocities
 
-
-        # calculate reward
-        reward = self._calculate_reward(
-            current_position=current_position,
-            prev_position=self.prev_position,
-            current_gate=current_gate,
-            body_rate=body_rate,
-            action=action
-        )
-
         done = False
 
+        body_rate_penalty_coeff = 0.001
+        finish_reward = 1000.0
+        gate_reward = 500.0
+        gate_passed_threshold = 0.5
 
-        self.prev_position = current_position.copy()
-        self.do_simulation(action, self.frame_skip)
-        observation = self._get_obs()
+        # reward (from Scaramuzza)
+        prev_distance_to_gate = np.linalg.norm(current_gate - self.prev_position)
+        current_distance_to_gate = np.linalg.norm(current_gate - current_position)
+        progress_reward = prev_distance_to_gate - current_distance_to_gate
 
+        # body rate penalty
+        body_rate_penalty = body_rate_penalty_coeff * np.linalg.norm(body_rate)
+        #print(self.current_gate_index, "and", self.data.ctrl)
 
-        gate_passed_threshold = 0.5  # Threshold to consider a gate passed
-        if np.linalg.norm(current_gate - current_position) < gate_passed_threshold:
+        reward = progress_reward - body_rate_penalty
+        if current_distance_to_gate < gate_passed_threshold:
+            reward += gate_reward
             self.current_gate_index += 1
 
             if self.current_gate_index == len(self.gates) - 1:  # All gates passed
+                reward += finish_reward
                 done = True
-                return self._get_obs(), reward, done, False, {}
 
+        [x, y, z, factor, pitch, roll, yaw] = self.data.qpos
 
-        z = self.data.qpos[2]
-        angle_x = self.data.qpos[4]
-        angle_y = self.data.qpos[5]
-        angle_z = self.data.qpos[6]
+        [acc_x, acc_y, acc_z, acc_pitch, acc_roll, acc_yaw] = self.data.qacc
+
+        #print(self.current_gate_index, "and", current_position)
         min_z, max_z = self._healthy_z_range
         min_angle, max_angle = self._healthy_angle_range
 
+        self.data.qpos[4:7] = np.mod(self.data.qpos[4:7] + np.pi, 2 * np.pi) - np.pi
+
         healthy_z = min_z < z < max_z
         healthy_angle = (
-                min_angle < angle_x < max_angle and
-                min_angle < angle_y < max_angle and
-                min_angle < angle_z < max_angle
+                min_angle < pitch < max_angle and
+                min_angle < roll < max_angle and
+                min_angle < yaw < max_angle
+        )
+        healthy_acc = (
+            acc_x < self.max_acc and
+            acc_y < self.max_acc and
+            acc_z < self.max_acc and
+            acc_pitch < self.max_acc_angle and
+            acc_roll < self.max_acc_angle and
+            acc_yaw < self.max_acc_angle
         )
         if not (healthy_z and healthy_angle):
-            reward -= 50.0
+            reward -= 0.01
+
+        if np.isnan(np.any(self.data.qacc)) or np.isinf(np.any(self.data.qacc)):
+            reward -= 1000
             done = True
+
+        self.prev_position = current_position.copy()
 
         info = {
             "position": current_position,
@@ -205,32 +207,6 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
             self.render()
 
         return observation, reward, done, False, info
-
-    def _calculate_reward(self, current_position, prev_position, current_gate, body_rate, action):
-
-        body_rate_penalty_coeff = 0.01
-        finish_reward = 50.0
-        gate_reward = 10.0
-
-        # reward (from Scaramuzza)
-        prev_distance_to_gate = np.linalg.norm(current_gate - prev_position)
-        current_distance_to_gate = np.linalg.norm(current_gate - current_position)
-        progress_reward = prev_distance_to_gate - current_distance_to_gate
-
-        # body rate penalty
-        body_rate_penalty = body_rate_penalty_coeff * np.linalg.norm(body_rate)
-
-        reward = progress_reward - body_rate_penalty
-
-        if current_distance_to_gate < 0.5 and self.current_gate_index < len(self.gates) - 1:
-            reward += gate_reward
-
-        # final gate reward
-        if current_distance_to_gate < 0.5 and self.current_gate_index == len(self.gates) - 1:
-            reward += finish_reward
-
-
-        return reward
 
     def _get_gate_corners(self, gate_centre):
         """
@@ -261,6 +237,9 @@ class QuadcopterEnv(MujocoEnv, utils.EzPickle):
         )
 
         self.set_state(qpos, qvel)
+
+        self.prev_position = self.data.qpos[:3]
+        self.current_index = 0
 
         self.current_gate_index = 0
 

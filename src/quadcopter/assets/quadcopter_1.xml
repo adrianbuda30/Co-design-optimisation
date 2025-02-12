@@ -2,10 +2,8 @@
     <compiler inertiafromgeom="true" coordinate="local" angle="degree" />
     <option integrator="RK4" timestep="0.002" gravity="0 0 -9.81" density="1.225" viscosity="1e-5" />
     <worldbody>
-        <geom name="floor" pos="0 0 -5" size="1000 1000 .2" type="plane" conaffinity="1" rgba="1 1 1 1" condim="3" />
         <body name="quadrotor" pos="0 0 0">
-            <camera name="track" mode="trackcom" pos="0 -5 -1.25" xyaxes="1 0 0 0 0 1" />
-            <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.06 0.035 0.025" rgba="0.3 0.3 0.8 1" mass="1.0" />
+            <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.06 0.035 0.025" rgba="0.3 0.3 0.8 1" mass="0.1" />
 
             <geom name="arm0" type="box" pos=".071 0.071 0.0" size="0.1 0.01 0.0025" quat=".924 0.0 0.0 0.383" rgba="0.3 0.3 0.8 1" density="1000" />
             <geom name="arm1" type="box" pos=".071 -0.071 0.0" size="0.1 0.01 0.0025" quat=".383 0.0 0.0 0.924" rgba="0.3 0.3 0.8 1" density="1000" />
@@ -31,5 +29,9 @@
     </worldbody>
     <actuator>
         <motor site="motor" ctrllimited="true" ctrlrange="0.0 100.0" gear="0 0 2.0 4.0 4.0 4.0" />
+        <motor site="motor" ctrllimited="true" ctrlrange="0.0 100.0" gear="0 0 2.0 4.0 4.0 4.0" />
+        <motor site="motor" ctrllimited="true" ctrlrange="0.0 100.0" gear="0 0 2.0 4.0 4.0 4.0" />
+        <motor site="motor" ctrllimited="true" ctrlrange="0.0 100.0" gear="0 0 2.0 4.0 4.0 4.0" />
     </actuator>
+
 </mujoco>
