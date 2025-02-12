@@ -166,8 +166,8 @@ while wrapper.data.time < duration:
     sol_q_dot = sol.value(q_dot)
     sol_u = sol.value(u)
 
-    wrapper.set_ctrl(sol_u[:, 0])
     wrapper.step()
+    wrapper.set_ctrl(sol_u[:, 0])
 
     if len(frames) < wrapper.data.time * framerate:
         # Adjust camera settings
