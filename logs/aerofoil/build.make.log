@@ -1,5 +1,0 @@
-[ 33%] [32mBuilding CXX object CMakeFiles/aerofoil_wrapper.dir/env/aerofoil_wrapper.cpp.o[0m
-[ 66%] [32mBuilding CXX object CMakeFiles/aerofoil_wrapper.dir/env/aerofoil.cpp.o[0m
-[100%] [32m[1mLinking CXX shared module /Users/adrianbuda/Downloads/master_thesis-aerofoil/devel/.private/aerofoil/lib/aerofoil_wrapper.cpython-39-darwin.so[0m
-ld: warning: -pie being ignored. It is only used when linking a main executable
-[100%] Built target aerofoil_wrapper
